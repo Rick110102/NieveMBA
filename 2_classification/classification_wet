@@ -15,6 +15,9 @@ var params = {
     'cloud': 170  // fraccion cloud de SMA para considera un pixel como no observado
 };
 
+
+// Ver si optamos por el estimado de median...
+// Ya que el wet, es demasiado ruidoso...
 var variables = [
                     "blue_median_wet",
                     "green_median_wet",
