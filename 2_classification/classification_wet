@@ -145,8 +145,9 @@ Map.addLayer(
 /**
 * Importa el modulo 'GetImages' para la obtención de los mosaicos
 */
-var getImages = require('users/mapbiomasperupr/Ricardo:New_Collection/GetImages.js');
-var smafractions = require('users/mapbiomasperupr/Ricardo:New_Collection/Sma-fraction.js');
+// NUEVO
+var getImages = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/GetImages.js');
+var smafractions = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Sma-fraction.js');
 /**
  * Get stable pixels
  * Get stable pixels from mapbiomas collection 2
