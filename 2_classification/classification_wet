@@ -1,7 +1,7 @@
  // TEMA TRANSVERSAL GLACIARES
 
 var params = {
-    'regionGlacier': 1013,
+    'regionGlacier': 1005,
     'pais': 'PERU', // Options: 'PERU', 'BOLIVIA', 'ECUADOR', 'COLOMBIA ,'VENEZUELA'
     'shadowSum':3500,
     'trees': 50,
