@@ -326,10 +326,10 @@ YearsSensors.forEach(
       },'Mosaic-median-'+yearsensor[0]+ '-' +yearsensor[1], false)
 
     Map.addLayer(MosaicForClass, {
-          bands: 'swir1_median_dry,nir_median_dry,red_median_dry',
+          bands: 'swir1_median_wet,nir_median_wet,red_median_wet',
           min:300,
           max:5000
-      },'Mosaic-minsnow-'+yearsensor[0]+ '-' +yearsensor[1], false)
+      },'Mosaic-maxsnow-'+yearsensor[0]+ '-' +yearsensor[1], false)
       
     Map.addLayer(Mosaic, {
           bands: 'snow',
