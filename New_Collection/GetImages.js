@@ -18,14 +18,14 @@ var param = {
 };
 */
 
-var bns = require('users/mapbiomasperupr/Ricardo:New_Collection/BandNames.js');
-var csm = require('users/mapbiomasperupr/Ricardo:New_Collection/CloudAndShadowMasking.js');
-var col = require('users/mapbiomasperupr/Ricardo:New_Collection/Collection.js');
-var dtp = require('users/mapbiomasperupr/Ricardo:New_Collection/DataType.js');
-var ind = require('users/mapbiomasperupr/Ricardo:New_Collection/SpectralIndexes.js');
-var mis = require('users/mapbiomasperupr/Ricardo:New_Collection/Miscellaneous.js');
-var mos = require('users/mapbiomasperupr/Ricardo:New_Collection/Mosaic.js');
-var sma = require('users/mapbiomasperupr/Ricardo:New_Collection/SmaAndNdfi.js');
+var bns = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/BandNames.js');
+var csm = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/CloudAndShadowMasking.js');
+var col = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Collection.js');
+var dtp = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/DataType.js');
+var ind = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/SpectralIndexes.js');
+var mis = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Miscellaneous.js');
+var mos = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Mosaic.js');
+var sma = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/SmaAndNdfi.js');
 
 
 /*
