@@ -18,6 +18,7 @@ var param = {
 };
 */
 
+// NUEVO - rutas corregidas
 var bns = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/BandNames.js');
 var csm = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/CloudAndShadowMasking.js');
 var col = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Collection.js');
@@ -26,7 +27,6 @@ var ind = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Spect
 var mis = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Miscellaneous.js');
 var mos = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Mosaic.js');
 var sma = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/SmaAndNdfi.js');
-
 
 /*
 La funcion scaleFactor, realiza correccion radiometrica de las bandas
