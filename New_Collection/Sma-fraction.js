@@ -26,7 +26,7 @@ exports.getFractions = function (image) {
     var outBandNames = ['gv', 'npv', 'soil', 'cloud','snow'];
 
     var fractions = ee.Image(image)
-        .select(['blue_median_dry', 'green_median_dry', 'red_median_dry', 'nir_median_dry', 'swir1_median_dry', 'swir2_median_dry'])
+        .select(['blue_median_wet', 'green_median_wet', 'red_median_wet', 'nir_median_wet', 'swir1_median_wet', 'swir2_median_wet'])
         .unmix(endmembers)
         .max(0)
         .multiply(100)
@@ -69,7 +69,7 @@ exports.getFractions2 = function (image) {
     var outBandNames = ['gv', 'npv', 'soil', 'cloud','snow','snow2'];
 
     var fractions = ee.Image(image)
-        .select(['blue_median_dry', 'green_median_dry', 'red_median_dry', 'nir_median_dry', 'swir1_median_dry', 'swir2_median_dry'])
+        .select(['blue_median_wet', 'green_median_wet', 'red_median_wet', 'nir_median_wet', 'swir1_median_wet', 'swir2_median_wet'])
         .unmix(endmembers)
         .max(0)
         .multiply(100)
