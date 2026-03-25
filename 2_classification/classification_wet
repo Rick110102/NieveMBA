@@ -310,7 +310,7 @@ YearsSensors.forEach(
                                       // .where(Mosaic.select('ndsi_median_wet').gte(188), 34)
                                       // .where(Mosaic.select('slope').gte(15), 34)
                                       // .where(Mosaic.select('soil').lte(25), 34)
-                                      .where(Mosaic.select('ndsi_min').gte(80).add(Mosaic.select('snow').gte(25).and(Mosaic.select('slope').gte(5))), 34)
+                                      .where(Mosaic.select('ndsi_min').gte(100).add(Mosaic.select('snow').gte(25).and(Mosaic.select('slope').gte(5))), 34)
                                       // .where(Mosaic.select('snow').gte(170).and(Mosaic.select('slope').gte(5)), 34)
                                       // Rango observado para 
                                                 // blue_median_dry: > 4,000 (valores típicos alrededor de 16,022)
