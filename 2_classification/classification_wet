@@ -1,5 +1,8 @@
 /**** Start of imports. If edited, may not auto-convert in the playground. ****/
-var geometry = /* color: #d63000 */ee.Geometry.MultiPoint(
+var geometry = 
+    /* color: #d63000 */
+    /* shown: false */
+    ee.Geometry.MultiPoint(
         [[-70.09894723108494, -17.00299993587547],
          [-69.7935191004036, -17.45951097232333]]);
 /***** End of imports. If edited, may not auto-convert in the playground. *****/
@@ -61,7 +64,7 @@ var variables = [
 //l5(1985-2012), l7(1999-2022), lx(1985-2013), l8(2013-2022)
 //             YEAR, SENSOR,  <=Nube, >=nir_median,>=red_median
 var YearsSensors =  [
-              // [1985,  'lx',      75,    2114,      2497], 
+              [1985,  'lx',      75,    2114,      2497], 
               // [1986,  'lx',      75,    2114,      2497], 
               // [1987,  'lx',      75,    2114,      2497], 
               // [1988,  'lx',      75,     2114,      2497], 
@@ -113,11 +116,11 @@ var YearsSensors =  [
               // [2022,  'l8',      75,     1730,      2304],
               // [2023,  'l8',      75,     1730,      2304],
               // [2024,  'l8',      75,     1730,      2304],
-              [2025,  'l8',      75,     1730,      2304], // Nuevo año a la colección de glaciares
+              // [2025,  'l8',      75,     1730,      2304], // Nuevo año a la colección de glaciares
               // [2022,  'l9',      75,     1730,      2304],
               // [2023,  'l9',      75,     1730,      2304],
               // [2024,  'l9',      75,     1730,      2304],
-              [2025,  'l9',      75,     1730,      2304], // Nuevo año a la colección de glaciares
+              // [2025,  'l9',      75,     1730,      2304], // Nuevo año a la colección de glaciares
             ]  
              
 
@@ -134,7 +137,26 @@ var dem = ee.Image("USGS/SRTMGL1_003");
 var slope = ee.Terrain.slope(dem).rename('slope')
 
 var region = ee.FeatureCollection(AssetRegions).filterMetadata('id_regionC', 'equals', params.regionGlacier)
-var regionRaster = ee.Image(AssetRegionsRaster).eq(params.regionGlacier).selfMask()
+              .map(function(feature){
+                return feature.buffer(8000)
+              });
+              
+// var regionRaster = ee.Image(AssetRegionsRaster).eq(params.regionGlacier).selfMask()
+
+
+
+// var region = ee.FeatureCollection(AssetRegions)
+//   .filterMetadata('id_regionC', 'equals', params.regionGlacier)
+//   .map(function(feature) {
+//     return feature.buffer(1000); // 1000 metros = 1 km
+//   });
+
+
+// // NUEVO
+var regionRaster = region.reduceToImage({
+    properties: ['id_regionC'],
+    reducer: ee.Reducer.first()
+}).gt(0).selfMask();
 
 var clasCollBatch = ee.ImageCollection(AssetClasBatch).filter(ee.Filter.eq('version', params.versionBatch));
 
