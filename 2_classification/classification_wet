@@ -1,7 +1,17 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var geometry = /* color: #d63000 */ee.Geometry.MultiPoint(
+        [[-70.09894723108494, -17.00299993587547],
+         [-69.7935191004036, -17.45951097232333]]);
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+
+// Enmascararemos con el acumulado, claro, perderemos cobertura glaciar, quiza, pero hey, tenemos el filtro
+// filtro de glaciares puros, cosa que, si eliminamos glaciar por enmascarar agua, corregimos con la capa de glaciar
+// Glaciar dry, así que no nos preocupemos por enmascarar con el acumulado de agua!
+
  // TEMA TRANSVERSAL GLACIARES
 
 var params = {
-    'regionGlacier': 1006,
+    'regionGlacier': 1013,
     'pais': 'PERU', // Options: 'PERU', 'BOLIVIA', 'ECUADOR', 'COLOMBIA ,'VENEZUELA'
     'shadowSum':3500,
     'trees': 50,
@@ -300,7 +310,7 @@ YearsSensors.forEach(
                                       // .where(Mosaic.select('ndsi_median_wet').gte(188), 34)
                                       // .where(Mosaic.select('slope').gte(15), 34)
                                       // .where(Mosaic.select('soil').lte(25), 34)
-                                      .where(Mosaic.select('ndsi_min').gte(110).add(Mosaic.select('snow').gte(40).and(Mosaic.select('slope').gte(5))), 34)
+                                      .where(Mosaic.select('ndsi_min').gte(80).add(Mosaic.select('snow').gte(25).and(Mosaic.select('slope').gte(5))), 34)
                                       // .where(Mosaic.select('snow').gte(170).and(Mosaic.select('slope').gte(5)), 34)
                                       // Rango observado para 
                                                 // blue_median_dry: > 4,000 (valores típicos alrededor de 16,022)
