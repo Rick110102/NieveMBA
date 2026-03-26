@@ -65,11 +65,11 @@ var variables = [
 //             YEAR, SENSOR,  <=Nube, >=nir_median,>=red_median
 var YearsSensors =  [
               [1985,  'lx',      75,    2114,      2497], 
-              [1986,  'lx',      75,    2114,      2497], 
-              [1987,  'lx',      75,    2114,      2497], 
-              [1988,  'lx',      75,     2114,      2497], 
-              [1989,  'lx',      75,     2114,      2497], 
-              [1990,  'lx',      75,     2114,      2497], 
+              // [1986,  'lx',      75,    2114,      2497], 
+              // [1987,  'lx',      75,    2114,      2497], 
+              // [1988,  'lx',      75,     2114,      2497], 
+              // [1989,  'lx',      75,     2114,      2497], 
+              // [1990,  'lx',      75,     2114,      2497], 
               // [1991,  'lx',      75,     2114,      2497], 
               // [1992,  'lx',      75,     2114,      2497], 
               // [1993,  'lx',      75,     2114,      2497], 
@@ -432,7 +432,7 @@ YearsSensors.forEach(
       image: Clasification_RF,
       description:'GLACIER-WET-' + sensornameupper + '-' + params.regionGlacier + '-'+ yearsensor[0] + '-'+ params.versionOutput,
       assetId:'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification/'+ 
-              'GLACIER-WET' + sensornameupper + '-' + params.regionGlacier+ '-'+ yearsensor[0]+ '-'+ params.versionOutput,
+              'GLACIER-WET-' + sensornameupper + '-' + params.regionGlacier+ '-'+ yearsensor[0]+ '-'+ params.versionOutput,
       scale: 30,
       pyramidingPolicy: {
         '.default': 'mode'
