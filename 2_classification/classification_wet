@@ -14,7 +14,7 @@ var geometry =
  // TEMA TRANSVERSAL GLACIARES
 
 var params = {
-    'regionGlacier': 1005,
+    'regionGlacier': 1011,
     'pais': 'PERU', // Options: 'PERU', 'BOLIVIA', 'ECUADOR', 'COLOMBIA ,'VENEZUELA'
     'shadowSum':3500,
     'trees': 50,
@@ -64,7 +64,7 @@ var variables = [
 //l5(1985-2012), l7(1999-2022), lx(1985-2013), l8(2013-2022)
 //             YEAR, SENSOR,  <=Nube, >=nir_median,>=red_median
 var YearsSensors =  [
-              [1985,  'lx',      75,    2114,      2497], 
+              // [1985,  'lx',      75,    2114,      2497], 
               // [1986,  'lx',      75,    2114,      2497], 
               // [1987,  'lx',      75,    2114,      2497], 
               // [1988,  'lx',      75,     2114,      2497], 
@@ -74,7 +74,7 @@ var YearsSensors =  [
               // [1992,  'lx',      75,     2114,      2497], 
               // [1993,  'lx',      75,     2114,      2497], 
               // [1994,  'lx',      75,     2114,      2497], 
-              // [1995,  'lx',      75,     2114,      2497], 
+              [1995,  'lx',      75,     2114,      2497], 
               // [1996,  'lx',      75,     2114,      2497], 
               // [1997,  'lx',      75,     2114,      2497], 
               // [1998,  'lx',      75,     2114,      2497], 
@@ -138,7 +138,7 @@ var slope = ee.Terrain.slope(dem).rename('slope');
 
 var region = ee.FeatureCollection(AssetRegions).filterMetadata('id_regionC', 'equals', params.regionGlacier)
               .map(function(feature){
-                return feature.buffer(30000)
+                return feature.buffer(100000)
               });
               
 // var regionRaster = ee.Image(AssetRegionsRaster).eq(params.regionGlacier).selfMask()
@@ -155,7 +155,6 @@ var regionRaster = region.reduceToImage({
 //   });
 
 
-// // NUEVO
 var regionRaster = region.reduceToImage({
     properties: ['id_regionC'],
     reducer: ee.Reducer.first()
@@ -431,7 +430,7 @@ YearsSensors.forEach(
     Export.image.toAsset({
       image: Clasification_RF,
       description:'GLACIER-WET-' + sensornameupper + '-' + params.regionGlacier + '-'+ yearsensor[0] + '-'+ params.versionOutput,
-      assetId:'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-2/'+ 
+      assetId:'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification/'+ 
               'GLACIER-WET-' + sensornameupper + '-' + params.regionGlacier+ '-'+ yearsensor[0]+ '-'+ params.versionOutput,
       scale: 30,
       pyramidingPolicy: {
