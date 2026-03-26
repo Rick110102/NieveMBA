@@ -14,7 +14,7 @@ var geometry =
  // TEMA TRANSVERSAL GLACIARES
 
 var params = {
-    'regionGlacier': 1011,
+    'regionGlacier': 1005,
     'pais': 'PERU', // Options: 'PERU', 'BOLIVIA', 'ECUADOR', 'COLOMBIA ,'VENEZUELA'
     'shadowSum':3500,
     'trees': 50,
@@ -74,7 +74,7 @@ var YearsSensors =  [
               // [1992,  'lx',      75,     2114,      2497], 
               // [1993,  'lx',      75,     2114,      2497], 
               // [1994,  'lx',      75,     2114,      2497], 
-              [1995,  'lx',      75,     2114,      2497], 
+              // [1995,  'lx',      75,     2114,      2497], 
               // [1996,  'lx',      75,     2114,      2497], 
               // [1997,  'lx',      75,     2114,      2497], 
               // [1998,  'lx',      75,     2114,      2497], 
