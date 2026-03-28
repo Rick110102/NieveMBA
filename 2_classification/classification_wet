@@ -12,7 +12,8 @@ var geometry =
 // Glaciar dry, así que no nos preocupemos por enmascarar con el acumulado de agua!
 
  // TEMA TRANSVERSAL GLACIARES
-
+// Son 48 las regiones a procesar
+// enumeardas de 1 a 48
 var params = {
     'regionGlacier': 1,
     'pais': 'PERU', // Options: 'PERU', 'BOLIVIA', 'ECUADOR', 'COLOMBIA ,'VENEZUELA'
@@ -64,17 +65,17 @@ var variables = [
 //l5(1985-2012), l7(1999-2022), lx(1985-2013), l8(2013-2022)
 //             YEAR, SENSOR,  <=Nube, >=nir_median,>=red_median
 var YearsSensors =  [
-              // [1985,  'lx',      75,    2114,      2497], 
-              // [1986,  'lx',      75,    2114,      2497], 
-              // [1987,  'lx',      75,    2114,      2497], 
-              // [1988,  'lx',      75,     2114,      2497], 
-              // [1989,  'lx',      75,     2114,      2497], 
-              // [1990,  'lx',      75,     2114,      2497], 
-              // [1991,  'lx',      75,     2114,      2497], 
-              // [1992,  'lx',      75,     2114,      2497], 
-              // [1993,  'lx',      75,     2114,      2497], 
-              // [1994,  'lx',      75,     2114,      2497], 
-              // [1995,  'lx',      75,     2114,      2497], 
+              [1985,  'lx',      75,    2114,      2497], 
+              [1986,  'lx',      75,    2114,      2497], 
+              [1987,  'lx',      75,    2114,      2497], 
+              [1988,  'lx',      75,     2114,      2497], 
+              [1989,  'lx',      75,     2114,      2497], 
+              [1990,  'lx',      75,     2114,      2497], 
+              [1991,  'lx',      75,     2114,      2497], 
+              [1992,  'lx',      75,     2114,      2497], 
+              [1993,  'lx',      75,     2114,      2497], 
+              [1994,  'lx',      75,     2114,      2497], 
+              [1995,  'lx',      75,     2114,      2497], 
               // [1996,  'lx',      75,     2114,      2497], 
               // [1997,  'lx',      75,     2114,      2497], 
               // [1998,  'lx',      75,     2114,      2497], 
@@ -128,7 +129,7 @@ var YearsSensors =  [
 * Importa geometria: carta y region
 */
  
-var AssetRegions = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/clasificacion-regiones-glacier-5';
+var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
 // var AssetRegionsRaster = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/RASTER/clasificacion-regiones-glacier-5';
 var AssetClasBatch = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION3/GLACIER/classification'
 var coll_glacier = ee.ImageCollection("projects/mapbiomas-raisg/PRODUCTOS/AGUA/COLECCION01/glacier-integracion-03");
