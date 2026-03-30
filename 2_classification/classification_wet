@@ -15,7 +15,7 @@ var geometry =
 // Son 48 las regiones a procesar
 // enumeardas de 1 a 48
 var params = {
-    'regionGlacier': 3,
+    'regionGlacier': 4,
     'pais': 'PERU', // Options: 'PERU', 'BOLIVIA', 'ECUADOR', 'COLOMBIA ,'VENEZUELA'
     'shadowSum':3500,
     'trees': 50,
