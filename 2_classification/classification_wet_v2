@@ -84,7 +84,7 @@ var YearsSensors =  [
 /**
 * Cargamos nuevas regiones de procesamiento
 * Regiones de 1 a 48 a procesar
-* Ricardo : regiones 1 - 10, reprocesar regiones mal exportadas o con errores
+* Ricardo : regiones 1 - 10, reprocesar regiones mal exportadas o con errores, filtros postclass
 * Joaquín : regiones 11 - 20.
 * Cristhian : regiones 21 - 30
 * Andrea: regiones 31 - 40
@@ -116,11 +116,11 @@ Map.addLayer(
 var getImages = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/GetImages.js');
 var smafractions = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Sma-fraction.js');
 
-//var Clasification = ee.Image();
+
 YearsSensors.forEach(
   function(yearsensor) {
     var tree = {
-      nir_dry:yearsensor[3],  //mayor o igual a, lista de valores d
+      nir_dry:yearsensor[3],  //mayor o igual a, lista de valores
       red_dry:yearsensor[4],  //mayor o igual a, lista de valores
     }
     var param = {
