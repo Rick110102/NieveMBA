@@ -9,7 +9,7 @@ var geometry =
 // Parametros de procesamiento.
 // Solo cambiar regionGlacier para procesar nuevas regiones
 var params = {
-    'regionGlacier': 4,     // ---> Única línea a variar en base a la región de clasificación
+    'regionGlacier': 11,     // ---> Única línea a variar en base a la región de clasificación
     'pais': 'PERU',
     'shadowSum':3500,
     'versionOutput':1,
