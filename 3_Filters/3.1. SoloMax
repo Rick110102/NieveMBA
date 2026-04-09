@@ -180,7 +180,7 @@ for(var rc = 0; rc < listrc.length; rc++){
     Map.addLayer(
         imageExport,
         {
-            bands: ['classification_2023'],
+            bands: ['classification_2000'],
             min: 0, max: 34,
             palette: palettes.get('classification2'),
             format: 'png'
@@ -196,5 +196,5 @@ for(var rc = 0; rc < listrc.length; rc++){
 }
 
 
-var glacier = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification/GLACIER-WET-LX-1-2009-1")
+var glacier = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification/GLACIER-WET-LX-1-2000-1")
 Map.addLayer(glacier, {min:27, max:34});
