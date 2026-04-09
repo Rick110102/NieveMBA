@@ -68,7 +68,7 @@ var OutputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER
 
 var param = {
     version_input: 1,
-    version_output: 1,
+    version_output: 2,
 };
 
 var palettes = require('users/mapbiomas/modules:Palettes.js');
