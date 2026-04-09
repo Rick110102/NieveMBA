@@ -4,25 +4,25 @@
 
 var listrc = [
               [1, "PERU"],
-              // [2, "PERU"],
-              // [3, "PERU"],
-              // [4, "PERU"],
-              // [5, "PERU"],
-              // [6, "PERU"],
-              // [7, "PERU"],
-              // [8, "PERU"],
-              // [9, "PERU"],
-              // [10, "PERU"],
-              // [11, "PERU"],
-              // [12, "PERU"],
-              // [13, "PERU"],
-              // [14, "PERU"],
-              // [15, "PERU"],
-              // [16, "PERU"],
-              // [17, "PERU"],
-              // [18, "PERU"],
-              // [19, "PERU"],
-              // [20, "PERU"],
+              [2, "PERU"],
+              [3, "PERU"],
+              [4, "PERU"],
+              [5, "PERU"],
+              [6, "PERU"],
+              [7, "PERU"],
+              [8, "PERU"],
+              [9, "PERU"],
+              [10, "PERU"],
+              [11, "PERU"],
+              [12, "PERU"],
+              [13, "PERU"],
+              [14, "PERU"],
+              [15, "PERU"],
+              [16, "PERU"],
+              [17, "PERU"],
+              [18, "PERU"],
+              [19, "PERU"],
+              [20, "PERU"],
               // [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
@@ -64,11 +64,11 @@ var years = [
 
 var AssetGlacierWetClass = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification';
 var Bounds = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
-var OutputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft/';
+var OutputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
 
 var param = {
     version_input: 1,
-    version_output: 22,
+    version_output: 2,
 };
 
 var palettes = require('users/mapbiomas/modules:Palettes.js');
