@@ -98,23 +98,23 @@ var applyGapFill = function(image) {
     imageFilledt0tn = ee.Image(imageFilledt0tn);
 
     // Rellena hacia atrás tn → t0
-    // var bandNamesReversed = bandNames.reverse();
+    var bandNamesReversed = bandNames.reverse();
 
-    // var imageFilledtnt0 = bandNamesReversed.slice(1)
-    //     .iterate(
-    //         function(bandName, previousImage) {
-    //             var currentImage = imageFilledt0tn.select(ee.String(bandName));
-    //             previousImage = ee.Image(previousImage);
-    //             currentImage = currentImage.unmask(
-    //                 previousImage.select(previousImage.bandNames().length().subtract(1)));
-    //             return previousImage.addBands(currentImage);
-    //         },
-    //         ee.Image(imageFilledt0tn.select([bandNamesReversed.get(0)]))
-    //     );
+    var imageFilledtnt0 = bandNamesReversed.slice(1)
+        .iterate(
+            function(bandName, previousImage) {
+                var currentImage = imageFilledt0tn.select(ee.String(bandName));
+                previousImage = ee.Image(previousImage);
+                currentImage = currentImage.unmask(
+                    previousImage.select(previousImage.bandNames().length().subtract(1)));
+                return previousImage.addBands(currentImage);
+            },
+            ee.Image(imageFilledt0tn.select([bandNamesReversed.get(0)]))
+        );
 
-    // imageFilledtnt0 = ee.Image(imageFilledtnt0).select(bandNames);
+    imageFilledtnt0 = ee.Image(imageFilledtnt0).select(bandNames);
 
-    return imageFilledt0tn;
+    return imageFilledtnt0;
 };
 
 // Procesamiento por región
@@ -220,9 +220,9 @@ for(var rc = 0; rc < listrc.length; rc++){
     Map.addLayer(
         imageFilledtnt0,
         {
-            bands: ['classification_2009'],
+            bands: ['classification_2023'],
             min: 0, max: 34,
-            palette: ["black", "white", "red"],
+            palette: palettes.get('classification2'),
             format: 'png'
         },
         'gap fill region-' + regionId, false
