@@ -61,6 +61,7 @@ var years = [
 
 var AssetGlacierWetClass = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification';
 var Bounds = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
+var InputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
 var OutputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
 // La version 1, fueron testeos
 
