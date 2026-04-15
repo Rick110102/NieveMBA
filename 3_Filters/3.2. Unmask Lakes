@@ -158,7 +158,7 @@ for (var rc = 0; rc < listrc.length; rc++) {
     description:      prefixo_out,
     assetId:          OutputAsset + prefixo_out,
     pyramidingPolicy: { '.default': 'mode' },
-    region:           regionGeom.bounds(),
+    region:           regionGeom,
     scale:            30,
     maxPixels:        1e13
   });
@@ -171,7 +171,7 @@ for (var rc = 0; rc < listrc.length; rc++) {
       folder:      param.exportOpcion.DriveFolder,
       scale:       30,
       maxPixels:   1e13,
-      region:      regionGeom.bounds()
+      region:      regionGeom,
     });
   }
 
