@@ -91,7 +91,7 @@ for(var rc = 0; rc<listrc.length; rc++){
               
               
   var class4FT = ee.ImageCollection(dirinput)
-                        .filterMetadata('code_region', 'equals', param.regionGlacier)
+                        .filterMetadata('region', 'equals', param.regionGlacier)
                         .filterMetadata('version', 'equals', param.version_input)
                         .first()
   // print(class4FT)
