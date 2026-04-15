@@ -63,7 +63,7 @@ var AssetGlacierWetClass = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION
 var Bounds = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
 var InputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
 var OutputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
-var lakes = '';
+var lakes = 'projects/mapbiomas-peru/assets/WATER/COLLECTION-3/BODY-REMAP/SNIC_OBJ/obj_acumulado';
 // La version 1, fueron testeos
 
 var param = {
