@@ -74,16 +74,16 @@ var codesAndVersions = [
 //---------------------------------
 var palettes = require('users/mapbiomas/modules:Palettes.js');
 
-var dirinputClass = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/classification-ft-v2'
-var dirinputClassFil = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/classification-ft-v2'
-var dirout = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2'
+var dirinputClass = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
+var dirinputClassFil = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
+var dirout = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
 
 var assetCountries = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/paises-5';
 var assetCountriesRaster = "projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/RASTER/paises-5";
 var regionesclassRaster = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/RASTER/clasificacion-regiones-glacier-5'
 var regionesMosaicRaster = 'projects/mapbiomas-raisg/DATOS_AUXILIARES/RASTERS/clasificacion-mosaicos-4'
 var assetmosaicVectors= 'projects/mapbiomas-raisg/DATOS_AUXILIARES/VECTORES/clasificacion-mosaicos-4'
-var assetregionVectors= 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/clasificacion-regiones-glacier-5'
+var assetregionVectors= 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
 
 var assetMosaic = "projects/nexgenmap/MapBiomas2/LANDSAT/PANAMAZON/mosaics-2";
 var assetMosaicP2 = "projects/nexgenmap/MapBiomas2/LANDSAT/PANAMAZON/mosaics-pathrow-2";
@@ -285,30 +285,5 @@ for(var year=1985; year<=2025;year++){
         'maxPixels': 1e13
     });
 }
-
-
-
-
-  // var prefixo_out = param.pais + '-' + 'CLASES-GENERALES' + '-' + param.version_output
-  // var integracionyear = integracion_v0
-  //                         .set('country', param.pais)
-  //                         .set('theme', 'GENERAL')
-  //                         .set('version', param.version_output)
-  //                         .set('collection', '4.0')
-  //                         .set('source', param.source);
-
-  //     print(integracionyear);
-    
-  //   Export.image.toAsset({
-  //       'image':integracionyear,
-  //       'description': prefixo_out,
-  //       'assetId': dirout+'/' +prefixo_out,
-  //       'pyramidingPolicy': {
-  //           '.default': 'mode'
-  //       },
-  //       'region': country.geometry().bounds(),
-  //       'scale': 30,
-  //       'maxPixels': 1e13
-  //   });
 
 
