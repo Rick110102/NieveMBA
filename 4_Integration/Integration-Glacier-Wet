@@ -76,7 +76,7 @@ var palettes = require('users/mapbiomas/modules:Palettes.js');
 
 var dirinputClass = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
 var dirinputClassFil = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
-var dirout = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
+var dirout = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/';
 
 var assetCountries = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/paises-5';
 var assetCountriesRaster = "projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/RASTER/paises-5";
@@ -260,7 +260,7 @@ print('integracion_v0',integracion_v0)
 
 Map.addLayer(regionClas,{},'Region Clasificacion',false)
 
-for(var year=1985; year<=2025;year++){
+for(var year=2000; year<=2025;year++){
   var prefixo_out = param.pais + '-' + year + '-' + param.version_output
   var integracionyear = integracion_v0.select('classification_'+year)
                           .rename('classification')
@@ -276,7 +276,7 @@ for(var year=1985; year<=2025;year++){
     Export.image.toAsset({
         'image':integracionyear,
         'description': prefixo_out,
-        'assetId': dirout+'/' +prefixo_out,
+        'assetId': dirout + prefixo_out,
         'pyramidingPolicy': {
             '.default': 'mode'
         },
