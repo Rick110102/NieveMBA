@@ -3,21 +3,15 @@
  */
  
 var param = {
-    // ID_pais: 8,
     pais: 'PERU',
-    years: [2000, 2025],  // Lista de años Solo para visualizacion
+    years_start: 2000,
+    years_end: 2025,
     version_output:'1',
     source:'Instituto del Bien Común (IBC)',  
-    // 'Instituto del Bien Común (IBC)' 
-    // 'Fundación amigos de la naturaleza (FAN)'  
-    // 'Fundación EcoCiencia', 
-    // 'Fundación Gaia Amazonas', 
-    // 'Provita'
      }; 
      
 // CODIGO DE REGION Y VERSION A INTEGRAR
 var codesAndVersions = [
-  // PERÚ
               [1, 4],
               [2, 4],
               [3, 4],
@@ -71,219 +65,116 @@ var codesAndVersions = [
         
         
 // Assets
-//---------------------------------
-var palettes = require('users/mapbiomas/modules:Palettes.js');
-
-var dirinputClass = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
+var palettes        = require('users/mapbiomas/modules:Palettes.js');
 var dirinputClassFil = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
-var dirout = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/';
+var dirout           = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/';
+var assetregionVectors = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
+var assetCountries     = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/paises-5';
 
-var assetCountries = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/paises-5';
-var assetCountriesRaster = "projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/RASTER/paises-5";
-var regionesclassRaster = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/RASTER/clasificacion-regiones-glacier-5'
-var regionesMosaicRaster = 'projects/mapbiomas-raisg/DATOS_AUXILIARES/RASTERS/clasificacion-mosaicos-4'
-var assetmosaicVectors= 'projects/mapbiomas-raisg/DATOS_AUXILIARES/VECTORES/clasificacion-mosaicos-4'
-var assetregionVectors= 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
-
-var assetMosaic = "projects/nexgenmap/MapBiomas2/LANDSAT/PANAMAZON/mosaics-2";
-var assetMosaicP2 = "projects/nexgenmap/MapBiomas2/LANDSAT/PANAMAZON/mosaics-pathrow-2";
-var regionMosaicRaster  = ee.Image(regionesMosaicRaster).rename(['regions'])
-
-
-
-/**
-  * Get mosaics
-  * Get mosaics from collection2 asset col4 mapbiomas Amaz. Then compute
-  * wetlands indexes remaining.
-  */
-var getMosaic = function(paths, regionRaster, Listyears) {
-  
-      // Mosaic
-      regionRaster = regionRaster.where(regionRaster.eq(211),210)
-      regionRaster = regionRaster.where(regionRaster.eq(205),210)
-      var Mosaic_coll = ee.ImageCollection(paths[0]).merge(ee.ImageCollection(paths[1]))
-                                                    .filter(ee.Filter.inList('year',Listyears))
-                        // .filterMetadata('country', 'equals', param.pais)
-                        // .select(['swir1_median', 'nir_median', 'red_median'])
-                        .map(
-                            function (image) {
-                                return image.updateMask(
-                                    regionRaster.eq(ee.Number.parse(image.get('region_code')).toInt16()));
-                            }
-                        );
-                        
-                          
-
-      // Aditional Bands
-      var joinedMosaics = Mosaic_coll;
-                  
-      
-      // Select variables
-      return joinedMosaics;
-      
-  };
-
-var mosaicsRAISG = getMosaic([assetMosaic,assetMosaicP2], regionMosaicRaster, param.years);
-
-
-// var assetRemapNorte13= "projects/mapbiomas-raisg/DATOS_AUXILIARES/RASTERS/per-remap-norte-13"
-//---------------------------------
-
-// var collection = ee.ImageCollection(dirinputClass);
-// var remapNorte13 = ee.Image(assetRemapNorte13)
-//
-// convert vector to raster
-//
-
-function NamecountryCase (name){
-          var paisLowerCase =''
-          switch (name) {
-            case "PERU":
-                paisLowerCase = 'Perú';
-                break;
-            case "GUIANA_FRANCESA":
-                paisLowerCase = 'Guiana Francesa';
-                break;
-            case "VENEZUELA":
-                paisLowerCase = 'Venezuela';
-                break;
-            case "GUYANA":
-                paisLowerCase = 'Guyana';
-                break;
-            case "COLOMBIA":
-                paisLowerCase = 'Colombia';
-                break;
-            case "BRASIL":
-                paisLowerCase = 'Brasil';
-                break;
-            case "ECUADOR":
-                paisLowerCase = 'Ecuador';
-                break;
-            case "SURINAME":
-                paisLowerCase = 'Suriname';
-                break;
-            case "BOLIVIA":
-                paisLowerCase = 'Bolivia'
-            }
-  return paisLowerCase
-}
-
+// ── Vectores y rasterización de regiones ──────────────────────────────────────
 var regionClas = ee.FeatureCollection(assetregionVectors);
-
-var regionsRaster,regionClas;
-    regionClas = ee.FeatureCollection(assetregionVectors);
-    regionsRaster = ee.Image(regionesclassRaster);
-
-
-// var regionsRaster = ee.Image().uint32().paint({
-//                     featureCollection: regionClas,
-//                     color: 'id_regionC'
-//                     }).rename(['regions']);
-
-// var regionMosaicRaster = ee.Image().uint32().paint({
-//                     featureCollection: regionClas,
-//                     color: 'id_region'
-//                     }).rename(['regions']);
+print(regionClas);
+// ⚠ Ajusta 'code_region' si la propiedad numérica del vector tiene otro nombre
+var regionsRaster = ee.Image().uint16()
+    .paint({ featureCollection: regionClas, color: 'ord' })
+    .rename('regions');
 
 var country = ee.FeatureCollection(assetCountries)
-                  .filterMetadata('name', 'equals', NamecountryCase(param.pais));
-                  
-Map.addLayer(country, {}, 'country', false)   
+    .filter(ee.Filter.eq('name', 'Perú'));
 
-// var countryraster = ee.Image(assetCountriesRaster).eq(param.ID_pais).selfMask()
+// ── Diagnóstico rápido (comenta una vez confirmado) ───────────────────────────
+// print('Propiedades del vector de regiones:', regionClas.first().propertyNames());
+// print('Ejemplo code_region:', regionClas.first().get('code_region'));
+// print('Tamaño colección clasificaciones:',
+//     ee.ImageCollection(dirinputClassFil)
+//         .filterMetadata('code_region', 'equals', 1)
+//         .filterMetadata('version', 'equals', 4)
+//         .size()
+// );
 
-// var regionsRaster = ee.Image(regionesclassRaster)
-// var regionMosaicRaster = ee.Image(regionesMosaicRaster)
-//
-// Integrate
-//
-var collection
-var collectionsByRegion = codesAndVersions
-    .map(
-        function (codeAndVersion) {
-             if(codeAndVersion[1] === 1 || codeAndVersion[1]=== 3) {
-               collection = ee.ImageCollection(dirinputClass)
+// ── Integración ───────────────────────────────────────────────────────────────
+var collectionsByRegion = codesAndVersions.map(function(codeAndVersion) {
+    var code    = codeAndVersion[0];
+    var version = codeAndVersion[1];
 
-             } else {
-               collection = ee.ImageCollection(dirinputClassFil)
-             }
-            // print(collection)
-            var images = collection
-                .filterMetadata('code_region', 'equals', codeAndVersion[0])
-                .filterMetadata('version', 'equals', codeAndVersion[1])
-                .map(
-                    function (image) {
-                        return image.mask(regionsRaster.eq(codeAndVersion[0]));
-                    }
-                ).mosaic();
-                            print(codeAndVersion[0], codeAndVersion[1])
-              print(images)
-               images = images.updateMask(images.eq(34))
-              
-              
-            return images.byte();
-        }
-    );
+    var regionMask = regionsRaster.eq(code);
+
+    var images = ee.ImageCollection(dirinputClassFil)
+        .filterMetadata('code_region', 'equals', code)
+        .filterMetadata('version', 'equals', version)
+        .map(function(image) {
+            return image.updateMask(regionMask);
+        })
+        .mosaic()
+        .updateMask(
+            ee.ImageCollection(dirinputClassFil)
+                .filterMetadata('code_region', 'equals', code)
+                .filterMetadata('version', 'equals', version)
+                .mosaic()
+                .eq(34)
+        );
+
+    return images.byte();
+});
 
 var allRegionsClassification = ee.ImageCollection.fromImages(ee.List(collectionsByRegion));
-var integracion_v0 = allRegionsClassification.min()
-// integracion_v0 = integracion_v0.where(remapNorte13.eq(1).and(integracion_v0.eq(21)), 13)
+var integracion_v0 = allRegionsClassification.mosaic();
 
+print('integracion_v0 bandas:', integracion_v0.bandNames());
 
+// ── Visualización del resultado integrado ─────────────────────────────────────
+Map.addLayer(regionClas, {}, 'Regiones Glaciares', false);
 
-// Layer add
-
-for (var yearI=0;yearI<param.years.length;yearI++) {
-  var vis = {
-      'bands': 'classification_'+param.years[yearI],
-      'min': 0,
-      'max': 34,
-      'palette': palettes.get('classification2')
-  };
-  
-  var mosaicYear = mosaicsRAISG
-                    .filterMetadata('year', 'equals', param.years[yearI])
-                    .mosaic();
-  
-  Map.addLayer(mosaicYear,{
-          "bands":["swir1_median","nir_median","red_median"],
-          // "min":407,"max":3381,
-          'gain': [0.08, 0.06, 0.08],
-          'gamma': 0.65
-  }, 'Mosaic' + param.years[yearI],false);
-  
-  Map.addLayer(integracion_v0, vis, 'classification_'+param.years[yearI],false);
-
+for (var y = param.years_start; y <= param.years_end; y++) {
+    Map.addLayer(
+        integracion_v0,
+        { bands: 'classification_' + y, min: 0, max: 34, palette: palettes.get('classification2') },
+        'classification_' + y,
+        false
+    );
 }
 
-print('integracion_v0',integracion_v0)
+// ── Exportación por año ───────────────────────────────────────────────────────
+for (var year = param.years_start; year <= param.years_end; year++) {
+    var prefixo_out = param.pais + '-' + year + '-' + param.version_output;
 
-Map.addLayer(regionClas,{},'Region Clasificacion',false)
+    var integracionYear = integracion_v0
+        .select('classification_' + year)
+        .rename('classification')
+        .set('country',    param.pais)
+        .set('theme',      'GLACIER')
+        .set('year',       year)
+        .set('version',    param.version_output)
+        .set('collection', '5.0')
+        .set('source',     param.source);
 
-for(var year=2000; year<=2025;year++){
-  var prefixo_out = param.pais + '-' + year + '-' + param.version_output
-  var integracionyear = integracion_v0.select('classification_'+year)
-                          .rename('classification')
-                          .set('country', param.pais)
-                          .set('theme', 'GLACIER')
-                          .set('year', year)
-                          .set('version', param.version_output)
-                          .set('collection', '5.0')
-                          .set('source', param.source);
-
-      print(year, integracionyear);
-    
     Export.image.toAsset({
-        'image':integracionyear,
-        'description': prefixo_out,
-        'assetId': dirout + prefixo_out,
-        'pyramidingPolicy': {
-            '.default': 'mode'
-        },
-        'region': country.geometry().bounds(),
-        'scale': 30,
-        'maxPixels': 1e13
+        image:            integracionYear,
+        description:      prefixo_out,
+        assetId:          dirout + prefixo_out,
+        pyramidingPolicy: { '.default': 'mode' },
+        region:           country.geometry().bounds(),
+        scale:            30,
+        maxPixels:        1e13,
     });
 }
 
 
+// ── DEM: NASADEM (reemplaza SRTM, mejor cobertura en Andes) ──────────────────
+// Alternativa: ee.Image('USGS/SRTMGL1_003').select('elevation')
+var dem = ee.Image('NASA/NASADEM_HGT/001')
+    .select('elevation')
+    .rename('elevation');
+    
+// También calculamos pendiente por si es útil para futuras máscaras
+var slope = ee.Terrain.slope(dem).rename('slope');
+
+// DEM con paleta hipsométrica
+var demVis = {
+    min: 0, max: 6768,  // ~cota máxima Andes peruanos (Huascarán)
+    palette: ['#053061','#2166ac','#4393c3','#92c5de',
+              '#d1e5f0','#f7f7f7','#fddbc7','#f4a582',
+              '#d6604d','#b2182b','#67001f']
+};
+
+Map.addLayer(dem.clip(country), demVis, 'DEM - Altitud (m)', true);
