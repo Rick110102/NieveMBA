@@ -76,7 +76,7 @@ var assetCountries     = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DA
 // ── Vectores y rasterización de regiones ──────────────────────────────────────
 var regionClas = ee.FeatureCollection(assetregionVectors);
 print(regionClas);
-// ⚠ Ajusta 'code_region' si la propiedad numérica del vector tiene otro nombre
+// Ajusta 'code_region' si la propiedad numérica del vector tiene otro nombre
 var regionsRaster = ee.Image().uint16()
     .paint({ featureCollection: regionClas, color: 'ord' })
     .rename('regions');
@@ -114,7 +114,7 @@ var demVis = {
 };
 
 var demFilterVis = {
-    min: 4500, max: 6768,  // ~cota máxima Andes peruanos (Huascarán)
+    min: 3400, max: 6768,  // ~cota máxima Andes peruanos (Huascarán)
     palette: ['#053061','#2166ac','#4393c3','#92c5de',
               '#d1e5f0','#f7f7f7','#fddbc7','#f4a582',
               '#d6604d','#b2182b','#67001f']
@@ -123,7 +123,7 @@ Map.addLayer(dem.clip(country), demVis, 'DEM - Altitud (m)', true);
 
 
 
-var demFiltered = dem.updateMask(dem.gte(4500));
+var demFiltered = dem.updateMask(dem.gte(3400));
 Map.addLayer(demFiltered.clip(country), demFilterVis, "Presencia de nieve 4500")
 
 //
