@@ -145,10 +145,10 @@ exports.getImages = function (param, blackList, grid) {
     // Para las pruebas de mejoras en mosaicos
         var collectionWithMasks = csm.getMasks({
             'collection': collection,
-            'cloudBQA': true,    // cloud mask using pixel QA
-            'cloudScore': false,  // cloud mas using simple cloud score
+            'cloudBQA': false,    // cloud mask using pixel QA
+            'cloudScore': true,  // cloud mas using simple cloud score
             'shadowBQA': true,   // cloud shadow mask using pixel QA
-            'shadowTdom': false,  // cloud shadow using tdom
+            'shadowTdom': true,  // cloud shadow using tdom
             'zScoreThresh': -1,
             'shadowSumThresh': options.shadowSum,
             'dilatePixels': 2,
