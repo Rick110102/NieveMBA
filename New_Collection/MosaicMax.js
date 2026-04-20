@@ -61,15 +61,15 @@ exports.getMosaic = function (obj) {
     );
 
     // get wet season collection
-    // var ndviWet = obj.collection
-    //     .select(['ndsi'])
-    //     .reduce(ee.Reducer.percentile([obj.percentileWet]));
+    var ndviWet = obj.collection
+        .select(['ndsi'])
+        .reduce(ee.Reducer.percentile([obj.percentileWet]));
 
-    // var collectionWet = obj.collection.map(
-    //     function (image) {
-    //         return image.mask(image.select(['ndsi']).gte(ndviWet));
-    //     }
-    // );
+    var collectionWet = obj.collection.map(
+        function (image) {
+            return image.mask(image.select(['ndsi']).gte(ndviWet));
+        }
+    );
 
     // Reduce collection to median mosaic
     var mosaic = obj.collection.filter(
