@@ -146,7 +146,7 @@ exports.getImages = function (param, blackList, grid) {
         var collectionWithMasks = csm.getMasks({
             'collection': collection,
             'cloudBQA': true,    // cloud mask using pixel QA
-            'cloudScore': flase,  // cloud mas using simple cloud score
+            'cloudScore': false,  // cloud mas using simple cloud score
             'shadowBQA': true,   // cloud shadow mask using pixel QA
             'shadowTdom': false,  // cloud shadow using tdom
             'zScoreThresh': -1,
