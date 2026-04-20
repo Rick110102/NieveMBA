@@ -155,7 +155,18 @@ var collectionsByRegion = codesAndVersions.map(function(codeAndVersion) {
 var allRegionsClassification = ee.ImageCollection.fromImages(ee.List(collectionsByRegion));
 var integracion_v0 = allRegionsClassification.mosaic();
 
+// -- Filtro altitudinal: Solo trabajamos con píxeles sobre los 3400 m.s.n.m
+// Justificación: Bonshoms et. al (2018, SENAMHI), donde se establece el rango altitudinal de 3400
+// Como cota mínima abosulta de registros de eventos de nieve en 10 años de estudio
+// Todo píxel clasificado sobre esta cota, será considerada como nieve y todo píxel debajo de esta cota
+// SERÁ ENMASCARADA...
+
 print('integracion_v0 bandas:', integracion_v0.bandNames());
+
+var elevMask = dem.gte(3400);
+var integracion_3400 = integracion_v0.updateMask(elevMask);
+
+print("Bandas con información sobre los 3400:", integracion_3400.bandNames());
 
 // ── Visualización del resultado integrado ─────────────────────────────────────
 Map.addLayer(regionClas, {}, 'Regiones Glaciares', false);
@@ -165,8 +176,12 @@ for (var y = param.years_start; y <= param.years_end; y++) {
         integracion_v0,
         { bands: 'classification_' + y, min: 0, max: 34, palette: ["red"]},
         'classification_' + y,
-        false
-    );
+        false);
+    Map.addLayer(
+        integracion_3400,
+        { bands: 'classification_' + y, min: 0, max: 34, palette: ["green"]},
+        'classification_' + y + "> 3400",
+        false );
 }
 
 // ── Exportación por año ───────────────────────────────────────────────────────
