@@ -161,11 +161,10 @@ exports.getImages = function (param, blackList, grid) {
             function (image) {
                 return image.mask(
                     image.select([
+                        'cloudScoreMask',
                         // 'cloudBQAMask',
-                        // 'cloudScoreMask',
-                        'cloudBQAMask',
-                        'shadowBQAMask'
-                        // 'shadowTdomMask'
+                        'shadowBQAMask',
+                        'shadowTdomMask'
                     ]).reduce(ee.Reducer.anyNonZero()).eq(0)
                 );
             }
