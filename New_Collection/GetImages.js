@@ -140,7 +140,9 @@ exports.getImages = function (param, blackList, grid) {
     }
     
     var applyCloudAndSahdowMask = function (collection) {
-
+    // Probar ajustes en el enmascaramiento, es probable que el tdom y el CS, este causando este ruido en los mosaicos
+    // Los nombramos rersiduos de enmascaramiento, es probable que sean causados por el tdom y el cs, quitaremos ambos
+    // Para las pruebas de mejoras en mosaicos.
         var collectionWithMasks = csm.getMasks({
             'collection': collection,
             'cloudBQA': false,    // cloud mask using pixel QA
