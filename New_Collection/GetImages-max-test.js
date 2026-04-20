@@ -25,7 +25,7 @@ var col = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Colle
 var dtp = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/DataType.js');
 var ind = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/SpectralIndexes.js');
 var mis = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Miscellaneous.js');
-var mos = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Mosaic.js');
+var mos = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/MosaicMax.js');
 var sma = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/SmaAndNdfi.js');
 
 /*
@@ -145,10 +145,10 @@ exports.getImages = function (param, blackList, grid) {
     // Para las pruebas de mejoras en mosaicos
         var collectionWithMasks = csm.getMasks({
             'collection': collection,
-            'cloudBQA': false,    // cloud mask using pixel QA
-            'cloudScore': true,  // cloud mas using simple cloud score
+            'cloudBQA': true,    // cloud mask using pixel QA
+            'cloudScore': false,  // cloud mas using simple cloud score
             'shadowBQA': true,   // cloud shadow mask using pixel QA
-            'shadowTdom': true,  // cloud shadow using tdom
+            'shadowTdom': false,  // cloud shadow using tdom
             'zScoreThresh': -1,
             'shadowSumThresh': options.shadowSum,
             'dilatePixels': 2,
@@ -161,10 +161,10 @@ exports.getImages = function (param, blackList, grid) {
             function (image) {
                 return image.mask(
                     image.select([
-                        'cloudScoreMask',
-                        // 'cloudBQAMask',
+                        // 'cloudScoreMask',
+                        'cloudBQAMask',
                         'shadowBQAMask',
-                        'shadowTdomMask'
+                        // 'shadowTdomMask'
                     ]).reduce(ee.Reducer.anyNonZero()).eq(0)
                 );
             }
