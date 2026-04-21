@@ -168,6 +168,22 @@ var integracion_3400 = integracion_v0.updateMask(elevMask);
 
 print("Bandas con información sobre los 3400:", integracion_3400.bandNames());
 
+// Capa de biomas, mejor que trabajar con la capa de altitud para el filtro
+//
+//
+var biomas = ee.FeatureCollection("projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/BIOMAS")
+            .filter(ee.Filter.eq("LEVEL_2", "Andes"));
+// Map.addLayer(biomas);
+
+// var biomasRaster = ee.Image().uint16()
+//     .paint({ featureCollection: biomas })
+//     .rename('BiomasRaster');
+// Map.addLayer(biomasRaster);
+
+// Unmask con region de biomas
+var integracion_biomas = integracion_v0.clip(biomas)
+//
+//
 // ── Visualización del resultado integrado ─────────────────────────────────────
 Map.addLayer(regionClas, {}, 'Regiones Glaciares', false);
 
@@ -181,6 +197,11 @@ for (var y = param.years_start; y <= param.years_end; y++) {
         integracion_3400,
         { bands: 'classification_' + y, min: 0, max: 34, palette: ["green"]},
         'classification_' + y + "> 3400",
+        false );
+    Map.addLayer(
+        integracion_biomas,
+        { bands: 'classification_' + y, min: 0, max: 34, palette: ["blue"]},
+        'classification_' + y + "_bioma",
         false );
 }
 
