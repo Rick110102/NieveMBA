@@ -2,7 +2,8 @@ var param = {
     pais: 'PERU',
     years_start: 2000,
     years_end: 2025,
-    version_output:'2', // VERSION 2, CONTEMPLA EL FILTRO DE ALTITUD DE 3400, LA VERSIÓN 1, NO CONTEMPLA ESTE FILTRO. 
+    version_output:'3', // VERSION 2, CONTEMPLA EL FILTRO DE ALTITUD DE 3400, LA VERSIÓN 1, NO CONTEMPLA ESTE FILTRO. 
+                        // VERSION 3, CONTEMPLA EL FILTRO DE BIOMAS, LA VERSIÓN 1 Y 2, NO LO HACEN
     source:'Instituto del Bien Común (IBC)',  
      }; 
      
@@ -209,14 +210,14 @@ for (var y = param.years_start; y <= param.years_end; y++) {
 for (var year = param.years_start; year <= param.years_end; year++) {
     var prefixo_out = param.pais + '-' + year + '-' + param.version_output;
 
-    var integracionYear = integracion_3400
+    var integracionYear = integracion_biomas
         .select('classification_' + year)
         .rename('classification')
         .set('country',    param.pais)
         .set('theme',      'GLACIER')
         .set('year',       year)
         .set('version',    param.version_output)
-        .set('collection', '5.0')
+        .set('collection', '4.0')
         .set('source',     param.source);
 
     Export.image.toAsset({
