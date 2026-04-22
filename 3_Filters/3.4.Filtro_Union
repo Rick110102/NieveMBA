@@ -4,7 +4,13 @@
                   es de suponer que si hay nieve presente en temporadas con poca cobertura de nieve
                   la permanencia también debe estar en la temporada húmeda con mucha más cobertura de nieve
 */
+// var Class = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-1985-1");
+// print(Class)
 
+var biomas = ee.FeatureCollection("projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/BIOMAS")
+            .filter(ee.Filter.eq("LEVEL_2", "Andes"));
+// var ClassW = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-2000-1");
+// print(ClassW)
 // Función para crear el mosaico
 function mosaicSnow(año){
   var ClassDry = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-" + año + "-1");
@@ -14,7 +20,15 @@ function mosaicSnow(año){
                   version 3 = Con filtro de bioma -> Delimitada a la región Andes
       */
                   
-    var mosaico = ee.ImageCollection([ClassDry, ClassWet]).mosaic();
+    var mosaico = ee.ImageCollection([ClassDry, ClassWet]).mosaic()
+                  .set({
+                    "year": año,
+                    "collection": 4,
+                    "version": 1,
+                    "country": "PERU",
+                    "Source": "IBC",
+                    "Theme": "Snow",
+                  });
   
   Map.addLayer(ClassDry, {palette:["#F54927"], min:0, max:34}, "Glaciar Dy " + año, false);
   Map.addLayer(ClassWet, {palette:["#07079C"], min:0, max:34}, "Glaciar Wet " + año, false);
@@ -27,5 +41,14 @@ var años = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
             2022, 2023, 2024, 2025];
 
 años.forEach(function(año){
-  mosaicSnow(año);
+  var imgSnow = mosaicSnow(año);
+  
+  Export.image.toAsset({
+    image: img,
+    description: "PERU-SNOW-" + año,
+    assetId: "projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-" + año + "-1" ,
+    scale: 30,
+    region: biomas.geometry(),
+    maxPixels: 1e13
+  });
 });
