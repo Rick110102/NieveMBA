@@ -1,0 +1,25 @@
+// Crearemos un mosaico con las imágenes clasificadas de Wet + Dry
+// Función para crear el mosaico
+function mosaicSnow(año){
+  var ClassDry = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-" + año + "-1");
+  var ClassWet = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-" + año + "-3");
+      /*Recordar version 1 = Sin filtros altitudinales ni de bioma
+                  version 2 = Con filtro altitudinal -> Delimita presencia de nieve en base a la altitud mínima de nieve registrada
+                  version 3 = Con filtro de bioma -> Delimitada a la región Andes
+      */
+                  
+    var mosaico = ee.ImageCollection([ClassDry, ClassWet]).mosaic();
+  
+  Map.addLayer(ClassDry, {palette:["#F54927"], min:0, max:34}, "Glaciar Dy " + año, false);
+  Map.addLayer(ClassWet, {palette:["#07079C"], min:0, max:34}, "Glaciar Wet " + año, false);
+  Map.addLayer(mosaico, {palette:["#05701B"], min:0, max:34}, "Mosaico Snow  " + año, false);
+  return mosaico;
+}
+
+var años = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
+            2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021,
+            2022, 2023, 2024, 2025];
+
+años.forEach(function(año){
+  mosaicSnow(año);
+});
