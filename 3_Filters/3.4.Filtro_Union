@@ -24,7 +24,7 @@ function mosaicSnow(año){
                   .set({
                     "year": año,
                     "collection": "4",
-                    "version": 1,
+                    "version": "1",
                     "country": "PERU",
                     "Source": "IBC",
                     "Theme": "Snow",
