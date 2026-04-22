@@ -44,7 +44,7 @@ años.forEach(function(año){
   var imgSnow = mosaicSnow(año);
   
   Export.image.toAsset({
-    image: img,
+    image: imgSnow,
     description: "PERU-SNOW-" + año,
     assetId: "projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-" + año + "-1" ,
     scale: 30,
@@ -52,3 +52,4 @@ años.forEach(function(año){
     maxPixels: 1e13
   });
 });
+
