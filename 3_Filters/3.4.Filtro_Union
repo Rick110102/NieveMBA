@@ -1,4 +1,10 @@
 // Crearemos un mosaico con las imágenes clasificadas de Wet + Dry
+/* Justificación:Existen vacíos de información en los mosaicos de temporada húmeda, pero estos vacíos
+                  tienen información de clasificación en glaciares de percentile 25, entonces,
+                  es de suponer que si hay nieve presente en temporadas con poca cobertura de nieve
+                  la permanencia también debe estar en la temporada húmeda con mucha más cobertura de nieve
+*/
+
 // Función para crear el mosaico
 function mosaicSnow(año){
   var ClassDry = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-" + año + "-1");
