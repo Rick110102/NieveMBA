@@ -16,7 +16,7 @@ var collectionIds = {
     'l8': ['LANDSAT/LC08/C02/T1_L2'],
     'l9': ['LANDSAT/LC09/C02/T1_L2'],
     'lx': [
-        'LANDSAT/LT05/C02/T1_L2',p
+        'LANDSAT/LT05/C02/T1_L2',
         'LANDSAT/LE07/C02/T1_L2'
           ],
     'ly': [
