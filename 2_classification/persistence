@@ -25,7 +25,7 @@ var collectionIds = {
           ],
 };
 
-var banIds = {
+var bandIds = {
     'LANDSAT/LT05/C02/T1_L2': 'l5_sr2',
     'LANDSAT/LE07/C02/T1_L2': 'l7_sr2',
     'LANDSAT/LC08/C02/T1_L2': 'l8_sr2',
