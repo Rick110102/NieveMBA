@@ -229,7 +229,7 @@ YearsSensors.forEach(
     Export.image.toAsset({
       image: Clasification_final,
       description:'GLACIER-WET-' + sensornameupper + '-' + params.regionGlacier + '-'+ yearsensor[0] + '-'+ params.versionOutput,
-      assetId:'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification/'+ 
+      assetId:'projects/ee-mapbiomasaguaperu/assets/GLACIER-WET/classification/'+ 
               'GLACIER-WET-' + sensornameupper + '-' + params.regionGlacier+ '-'+ yearsensor[0]+ '-'+ params.versionOutput,
       scale: 30,
       pyramidingPolicy: {
