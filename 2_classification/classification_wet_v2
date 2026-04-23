@@ -38,7 +38,7 @@ var YearsSensors =  [
               // [1998,  'lx',      75,     2114,      2497], 
               // [1999,  'lx',      75,     2114,      2497], 
               // [2000,  'lx',      75,     2114,      2497], 
-              [2001,  'lx',      75,     2114,      2497], 
+              // [2001,  'lx',      75,     2114,      2497], 
               // [2002,  'lx',      75,     2114,      2497], 
               // [2003,  'lx',      75,     2114,      2497], 
               // [2004,  'lx',      75,     2114,      2497], 
@@ -84,11 +84,11 @@ var YearsSensors =  [
 /**
 * Cargamos nuevas regiones de procesamiento
 * Regiones de 1 a 48 a procesar
-* Ricardo : regiones 1 - 10, reprocesar regiones mal exportadas o con errores, filtros postclass
-* Joaquín : regiones 11 - 20.
-* Cristhian : regiones 21 - 30
-* Andrea: regiones 31 - 40
-* Nico : regiones 41 - 48
+* mapbiomas : regiones 1 - 10, reprocesar regiones mal exportadas o con errores, filtros postclass
+* chara.valverde1 : regiones 11 - 20.
+* chara.valverde2 : regiones 21 - 30
+* chara.valverde3 : regiones 31 - 40
+* plusacademyhz : regiones 41 - 48
 */
 var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
 var AssetClasBatch = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION3/GLACIER/classification';
