@@ -1,181 +1,120 @@
 /**
- *  PersistenceMosaic.js
- *  Modulo para crear mosaicos de persistencia de nieve
+ * persistence_test
+ * Script de prueba para el mosaico de persistencia
+ * Año de prueba: 2023 con L8
  */
 
-var bns = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/BandNames.js');
-var csm = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/CloudAndShadowMasking.js');
-var col = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Collection.js');
-var ind = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/SpectralIndexes.js');
-var sma = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Sma-fraction.js');
+var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
+var OutputAssetFreq = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/persistence-frequency/';
+var OutputAssetClass = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/persistence-classification/';
 
-// IDs de colecciones por sensor
-var collectionIds = {
-    'l5': ['LANDSAT/LT05/C02/T1_L2'],
-    'l7': ['LANDSAT/LE07/C02/T1_L2'],
-    'l8': ['LANDSAT/LC08/C02/T1_L2'],
-    'l9': ['LANDSAT/LC09/C02/T1_L2'],
-    'lx': [
-        'LANDSAT/LT05/C02/T1_L2',
-        'LANDSAT/LE07/C02/T1_L2'
-          ],
-    'ly': [
-        'LANDSAT/LC08/C02/T1_L2',
-        'LANDSAT/LC09/C02/T1_L2'
-          ],
+var persistence = require('users/mapbiomasaguaperu/GlaciaresWet2026:2_classification/persistence');
+var palettes = require('users/mapbiomas/modules:Palettes.js');
+var dem = ee.Image("USGS/SRTMGL1_003");
+var slope = ee.Terrain.slope(dem).rename('slope');
+
+// Parámetros de prueba
+var params = {
+    'regionGlacier': 21,        // región de prueba
+    'year': 2023,              // año de prueba
+    'satellite': 'l8',         // sensor
+    'cloudCover': 70,
+    'ndsiThreshold': 140,      // NDSI real ≥ 0.4
+    'persistThreshold': 50,    // ≥ 50% de imágenes
+    'minObservations': 5,      // mínimo 5 obs válidas
+    'exportar': true,
+    'version': 1
 };
 
-var bandIds = {
-    'LANDSAT/LT05/C02/T1_L2': 'l5_sr2',
-    'LANDSAT/LE07/C02/T1_L2': 'l7_sr2',
-    'LANDSAT/LC08/C02/T1_L2': 'l8_sr2',
-    'LANDSAT/LC09/C02/T1_L2': 'l9_sr2',
-};
+// Cargar región
+var region = ee.FeatureCollection(AssetRegions)
+    .filterMetadata('ord', 'equals', params.regionGlacier);
 
-// Factor de escala Landsat
+var regionRaster = region.reduceToImage({
+    properties: ['ord'],
+    reducer: ee.Reducer.first()
+}).gt(0).selfMask();
 
-var scaleFactors = function(image) {
-    var opticalBands = image
-        .select(['blue','green','red','nir','swir1','swir2'])
-        .multiply(0.0000275).add(-0.2).multiply(10000);
-    return image.addBands(opticalBands, null, true);
-};
+Map.addLayer(
+    region.style({fillColor: '000000', color: '00000000'}),
+    {}, 'Background'
+);
 
-// Enmascaramiento BQA
+// Crear mosaico de persistencia
+var result = persistence.getPersistenceMosaic({
+    'year': params.year,
+    'satellite': params.satellite,
+    'cloudCover': params.cloudCover,
+    'ndsiThreshold': params.ndsiThreshold,
+    'persistThreshold': params.persistThreshold,
+    'minObservations': params.minObservations,
+    'geometry': region.geometry()
+});
 
-var applyBQAMask = function(collection) {
-    var collectionWithMasks = csm.getMasks({
-        'collection': collection,
-        'cloudBQA': true,
-        'cloudScore': false,
-        'shadowBQA': true,
-        'shadowTdom': false,
-        'zScoreThresh': -1,
-        'shadowSumThresh': 3500,
-        'dilatePixels': 2,
-        'cloudHeights': ee.List.sequence(2000, 10000, 500),
-        'cloudBand': 'cloudBQAMask'
+// Resultados
+var frequencyMosaic          = result.frequencyMosaic.updateMask(regionRaster);
+var persistenceClassification = result.persistenceClassification.updateMask(regionRaster);
+var totalObs                 = result.totalObs.updateMask(regionRaster);
+var snowFrequency            = result.snowFrequency.updateMask(regionRaster);
+
+print('Frecuencia mosaico:', frequencyMosaic.bandNames());
+print('Clasificación:', persistenceClassification.bandNames());
+
+// Visualización
+Map.addLayer(totalObs, {
+    min: 0, max: 40,
+    palette: ['white', 'blue']
+}, 'Total observaciones', false);
+
+Map.addLayer(snowFrequency, {
+    min: 0, max: 100,
+    palette: ['#00007F','#002AFF','#00D4FF','#7FFF7F','#FFD400','#FF2A00','#7F0000']
+}, 'Frecuencia nieve %', false);
+
+Map.addLayer(
+    persistenceClassification.updateMask(persistenceClassification.eq(34)),
+    {palette: 'ff0000'},
+    'Nieve persistente (≥50%)', false
+);
+
+Map.addLayer(
+    persistenceClassification.updateMask(persistenceClassification.eq(33)),
+    {palette: 'ffaa00'},
+    'Nieve estacional (<50%)', false
+);
+
+Map.addLayer(
+    region.style({fillColor: '#ff000000', color: 'f59e42'}),
+    {}, 'Region ' + params.regionGlacier, false
+);
+
+// Exportar
+var imageName = 'PERSIST-' + params.satellite.toUpperCase() +
+                '-' + params.regionGlacier +
+                '-' + params.year +
+                '-' + params.version;
+
+if(params.exportar) {
+
+    // Asset 1 - Mosaico de frecuencia
+    Export.image.toAsset({
+        image: frequencyMosaic,
+        description: 'FREQ-' + imageName,
+        assetId: OutputAssetFreq + 'FREQ-' + imageName,
+        pyramidingPolicy: {'.default': 'mean'},
+        region: region.geometry().bounds(),
+        scale: 30,
+        maxPixels: 1e13
     });
 
-    return collectionWithMasks.map(function(image) {
-        return image.mask(
-            image.select(['cloudBQAMask', 'shadowBQAMask'])
-                 .reduce(ee.Reducer.anyNonZero()).eq(0)
-        );
+    // Asset 2 - Clasificación de persistencia
+    Export.image.toAsset({
+        image: persistenceClassification.toInt8(),
+        description: 'CLASS-' + imageName,
+        assetId: OutputAssetClass + 'CLASS-' + imageName,
+        pyramidingPolicy: {'.default': 'mode'},
+        region: region.geometry().bounds(),
+        scale: 30,
+        maxPixels: 1e13
     });
-};
-
-
-// Procesar una colección individual
-var processCollection = function(collectionid, geometry, year, cloudCover) {
-
-    var bands = bns.get(bandIds[collectionid]);
-    var spectralBands = ['blue', 'green', 'red', 'nir', 'swir1', 'swir2'];
-
-    var objLandsat = {
-        'collectionid': collectionid,
-        'geometry': geometry,
-        'dateStart': year + '-01-01',
-        'dateEnd': year + '-12-31',
-        'cloudCover': cloudCover,
-    };
-
-    var collection = col.getCollection(objLandsat)
-        .select(bands.bandNames, bands.newNames)
-        .map(scaleFactors);
-
-    collection = applyBQAMask(collection)
-        .select(spectralBands);
-
-    // Calcular NDSI por imagen
-    collection = collection.map(ind.getNDSI);
-    
-    collection = collection.map(function(image){
-    return sma.getFractions(image);
-    });
-
-    return collection;
-};
-
-
-exports.getPersistenceMosaic = function(obj) {
-
-    var year             = obj.year;
-    var satellite        = obj.satellite;
-    var cloudCover       = obj.cloudCover       || 70;
-    var ndsiThreshold    = obj.ndsiThreshold    || 140; // NDSI real ≥ 0.4 en escala x100+100
-    var persistThreshold = obj.persistThreshold || 50;  // % mínimo persistencia
-    var minObs           = obj.minObservations  || 5;   // mínimo observaciones válidas
-    var geometry         = obj.geometry;
-
-    // PASO 1 - Construir colección según sensor
-    var ids = collectionIds[satellite];
-
-    var collection = processCollection(ids[0], geometry, year, cloudCover);
-
-    // Merge si hay múltiples sensores (lx, ly)
-    if(ids.length > 1) {
-        var collection2 = processCollection(ids[1], geometry, year, cloudCover);
-        collection = collection.merge(collection2);
-    }
-
-    print('Total imágenes ' + year + ':', collection.size());
-
-    // PASO 2 - Clasificar nieve en cada imagen
-    // ndsi en escala x100+100 → umbral 140 = NDSI real 0.4
-    var collectionSnow = collection.map(function(image) {
-        return image.select('snow')
-                    .gte(obj.snowThreshold)  // fracción snow ≥ umbral
-                    .rename('is_snow');
-    });
-
-    // PASO 3 - Calcular persistencia píxel a píxel
-    var totalObs = collectionSnow.count()
-                                 .rename('total_obs');
-
-    var snowCount = collectionSnow.sum()
-                                  .rename('snow_count');
-
-    // Frecuencia 0-100%
-    var snowFrequency = snowCount
-        .divide(totalObs)
-        .multiply(100)
-        .updateMask(totalObs.gte(minObs)) // filtrar píxeles con pocas obs
-        .rename('snow_frequency');
-
-    // PASO 4 - Mosaico de frecuencia
-    // Imagen auxiliar con 3 bandas informativas
-    var frequencyMosaic = snowFrequency
-        .addBands(totalObs)
-        .addBands(snowCount)
-        .set('year', year)
-        .set('satellite', satellite)
-        .set('ndsi_threshold', ndsiThreshold)
-        .set('persist_threshold', persistThreshold)
-        .set('min_observations', minObs);
-        
-    // PASO 5 - Clasificación de persistencia
-    // 34 → nieve persistente (≥ umbral)
-    // 33 → nieve estacional (< umbral pero > 0)
-    // 25 → no nieve
-    // 27 → sin observaciones suficientes
-    var persistenceClassification = ee.Image(25)
-        .where(snowFrequency.gt(0)
-               .and(snowFrequency.lt(persistThreshold)), 33)  // nieve estacional
-        .where(snowFrequency.gte(persistThreshold), 34)        // nieve persistente
-        .where(totalObs.lt(minObs), 27)                        // sin datos
-        .set('year', year)
-        .set('satellite', satellite)
-        .set('ndsi_threshold', ndsiThreshold)
-        .set('persist_threshold', persistThreshold)
-        .set('min_observations', minObs)
-        .rename('classification');
-
-    return {
-        'frequencyMosaic': frequencyMosaic,
-        'persistenceClassification': persistenceClassification,
-        'totalObs': totalObs,
-        'snowFrequency': snowFrequency
-    };
-};
-
+}
