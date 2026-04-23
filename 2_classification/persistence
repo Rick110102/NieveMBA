@@ -124,8 +124,8 @@ exports.getPersistenceMosaic = function(obj) {
     // PASO 2 - Clasificar nieve en cada imagen
     // ndsi en escala x100+100 → umbral 140 = NDSI real 0.4
     var collectionSnow = collection.map(function(image) {
-        return image.select('ndsi')
-                    .gte(ndsiThreshold)
+        return image.select('snow')
+                    .gte(obj.snowThreshold)  // fracción snow ≥ umbral
                     .rename('is_snow');
     });
 
