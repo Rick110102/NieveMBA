@@ -1,11 +1,3 @@
-/**** Start of imports. If edited, may not auto-convert in the playground. ****/
-var geometry = 
-    /* color: #d63000 */
-    /* shown: false */
-    ee.Geometry.MultiPoint(
-        [[-70.09894723108494, -17.00299993587547],
-         [-69.7935191004036, -17.45951097232333]]);
-/***** End of imports. If edited, may not auto-convert in the playground. *****/
 // Parametros de procesamiento.
 // Solo cambiar regionGlacier para procesar nuevas regiones
 var params = {
