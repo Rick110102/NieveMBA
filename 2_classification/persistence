@@ -46,10 +46,10 @@ var scaleFactors = function(image) {
 var applyBQAMask = function(collection) {
     var collectionWithMasks = csm.getMasks({
         'collection': collection,
-        'cloudBQA': true,
-        'cloudScore': false,
+        'cloudBQA': false,
+        'cloudScore': true,
         'shadowBQA': true,
-        'shadowTdom': false,
+        'shadowTdom': true,
         'zScoreThresh': -1,
         'shadowSumThresh': 3500,
         'dilatePixels': 2,
@@ -59,7 +59,12 @@ var applyBQAMask = function(collection) {
 
     return collectionWithMasks.map(function(image) {
         return image.mask(
-            image.select(['cloudBQAMask', 'shadowBQAMask'])
+            image.select([
+                        // 'cloudBQAMask'
+                        'cloudScoreMask',
+                        'shadowBQAMask',
+                        'shadowTdomMask'
+                        ])
                  .reduce(ee.Reducer.anyNonZero()).eq(0)
         );
     });
