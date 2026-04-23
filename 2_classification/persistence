@@ -149,7 +149,7 @@ exports.getPersistenceMosaic = function(obj) {
         .set('ndsi_threshold', ndsiThreshold)
         .set('persist_threshold', persistThreshold)
         .set('min_observations', minObs);
-
+        
     // PASO 5 - Clasificación de persistencia
     // 34 → nieve persistente (≥ umbral)
     // 33 → nieve estacional (< umbral pero > 0)
