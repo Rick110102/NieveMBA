@@ -15,7 +15,7 @@ var slope = ee.Terrain.slope(dem).rename('slope');
 
 // Parámetros de prueba
 var params = {
-    'regionGlacier': 3,        // región de prueba
+    'regionGlacier': 21,        // región de prueba
     'year': 2023,              // año de prueba
     'satellite': 'l8',         // sensor
     'cloudCover': 70,
