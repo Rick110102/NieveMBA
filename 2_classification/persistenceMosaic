@@ -15,11 +15,12 @@ var slope = ee.Terrain.slope(dem).rename('slope');
 
 // Parámetros de prueba
 var params = {
-    'regionGlacier': 21,        // región de prueba
+    'regionGlacier': 22,        // región de prueba
     'year': 2023,              // año de prueba
     'satellite': 'l8',         // sensor
     'cloudCover': 70,
-    'ndsiThreshold': 140,      // NDSI real ≥ 0.4
+    'ndsiThreshold': 140, 
+    'snowThreshold': 20, 
     'persistThreshold': 50,    // ≥ 50% de imágenes
     'minObservations': 5,      // mínimo 5 obs válidas
     'exportar': true,
@@ -118,3 +119,6 @@ if(params.exportar) {
         maxPixels: 1e13
     });
 }
+
+var SnowMax = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-2023-1");
+Map.addLayer(SnowMax, {palette:["blue"]});
