@@ -211,6 +211,11 @@ YearsSensors.forEach(
   Map.addLayer(classified_spectral.updateMask(classified_spectral.eq(34)).selfMask(),
       {palette: 'ff0000'},
       'classified-SPECTRAL-'+params.versionOutput+'-'+yearsensor[0], false)
+  
+  // Visualización de la classificación corregida
+  var ClassSnow = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-"+ yearsensor[0] +"-1")
+
+  Map.addLayer(ClassSnow, {palette: ["blue"]}, "ClassSnow" + yearsensor[0])
 
   // Proceso de exportación
   var Clasification_final = classified_spectral.rename('classification')
@@ -248,3 +253,7 @@ Map.addLayer(
     region.style({ fillColor: '#ff000000', color: 'f59e42'}),
     {}, 'Regions ' + params.pais, false
 );
+
+// var ClassSnow = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-"+ yearsensor[0] +"-1")
+
+// Map.addLayer(ClassSnow, {palette: ["blue"]}, "ClassSnow" + yearsensor[0])
