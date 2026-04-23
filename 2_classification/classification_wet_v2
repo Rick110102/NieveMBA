@@ -9,7 +9,7 @@ var geometry =
 // Parametros de procesamiento.
 // Solo cambiar regionGlacier para procesar nuevas regiones
 var params = {
-    'regionGlacier': 40,     // ---> Única línea a variar en base a la región de clasificación
+    'regionGlacier': 2,     // ---> Única línea a variar en base a la región de clasificación
     'pais': 'PERU',
     'shadowSum':3500,
     'versionOutput':1,
@@ -181,7 +181,7 @@ YearsSensors.forEach(
                                 // .where(Mosaic.select('ndsi_median_wet').gte(188), 34)
                                 // .where(Mosaic.select('slope').gte(15), 34)
                                 // .where(Mosaic.select('soil').lte(25), 34)
-                                .where(Mosaic.select('ndsi_min').gte(100).add(Mosaic.select('snow').gte(20).and(Mosaic.select('slope').gte(0))), 34)
+                                .where(Mosaic.select('ndsi_min').gte(100).add(Mosaic.select('snow').gte(40).and(Mosaic.select('slope').gte(0))), 34)
                                 // .where(Mosaic.select('snow').gte(170).and(Mosaic.select('slope').gte(5)), 34)
                                 // .where(Mosaic.select('shade').lte(256), 34)
                                 // .where(Mosaic.select('ndsi_min').gte(87), 34)
