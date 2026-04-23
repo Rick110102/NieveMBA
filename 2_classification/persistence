@@ -54,7 +54,7 @@ var applyBQAMask = function(collection) {
         'shadowSumThresh': 3500,
         'dilatePixels': 2,
         'cloudHeights': ee.List.sequence(2000, 10000, 500),
-        'cloudBand': 'cloudBQAMask'
+        'cloudBand': 'cloudScoreMask'
     });
 
     return collectionWithMasks.map(function(image) {
