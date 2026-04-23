@@ -7,7 +7,7 @@ var bns = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/BandN
 var csm = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/CloudAndShadowMasking.js');
 var col = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Collection.js');
 var ind = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/SpectralIndexes.js');
-
+var sma = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Sma-fraction.js');
 
 // IDs de colecciones por sensor
 var collectionIds = {
@@ -16,7 +16,7 @@ var collectionIds = {
     'l8': ['LANDSAT/LC08/C02/T1_L2'],
     'l9': ['LANDSAT/LC09/C02/T1_L2'],
     'lx': [
-        'LANDSAT/LT05/C02/T1_L2',
+        'LANDSAT/LT05/C02/T1_L2',p
         'LANDSAT/LE07/C02/T1_L2'
           ],
     'ly': [
@@ -89,6 +89,10 @@ var processCollection = function(collectionid, geometry, year, cloudCover) {
 
     // Calcular NDSI por imagen
     collection = collection.map(ind.getNDSI);
+    
+    collection = collection.map(function(image){
+    return sma.getFractions(image);
+    });
 
     return collection;
 };
