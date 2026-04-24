@@ -70,7 +70,6 @@ var YearsSensors =  [
 
 // // projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/PERU-1-4, dirección a trabajar
 
-
 // ── ASSETS & MÓDULOS ────────────────────────────────────────────
 var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
 var Class        = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
@@ -134,7 +133,7 @@ YearsSensors.forEach(function(yearsensor, i) {
 
   var classYear = classImg.select(['classification_' + year]);
 
-  // ── Crear layers con referencia guardada ──────────────────────
+  // Crear layers con referencia guardada
   var mosaicLayer = ui.Map.Layer(
     Mosaic, vis_mosaic,
     'Mosaico WET ' + year + ' (' + sensor.toUpperCase() + ')',
@@ -156,7 +155,6 @@ YearsSensors.forEach(function(yearsensor, i) {
   m.layers().add(classLayer);
   m.layers().add(regionLayer);
 
-  // Guardar referencias para el panel de control
   mosaicLayers.push(mosaicLayer);
   classLayers.push(classLayer);
 
@@ -183,29 +181,22 @@ YearsSensors.forEach(function(yearsensor, i) {
 });
 
 // ══════════════════════════════════════════════════════════════════
-// ── PANEL DE CONTROL GLOBAL ───────────────────────────────────────
+// ── ESTILOS COMPARTIDOS ───────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════
-
-// Estilos reutilizables
-var sTitle = {
-  fontWeight: 'bold', fontSize: '12px',
-  color: '#444', margin: '8px 0 2px 0'
-};
 var sSub = {
   fontSize: '10px', color: '#888',
   margin: '0 0 2px 0'
 };
-var sSep = {
-  height: '1px', backgroundColor: '#ddd',
-  stretch: 'horizontal', margin: '8px 0'
-};
+
 var sBtn = {
   stretch: 'horizontal',
   fontSize: '11px',
-  margin: '2px 0'
+  margin: '3px 0 0 0'
 };
 
-// ── Mosaico WET ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// ── PANEL INFERIOR IZQUIERDO · Mosaico WET ────────────────────────
+// ══════════════════════════════════════════════════════════════════
 var mosaicCheck = ui.Checkbox({
   label: 'Visible',
   value: true,
@@ -217,32 +208,13 @@ var mosaicCheck = ui.Checkbox({
 
 var mosaicSlider = ui.Slider({
   min: 0, max: 1, value: 1, step: 0.05,
-  style: { stretch: 'horizontal', margin: '2px 0 6px 0' },
+  style: { stretch: 'horizontal', margin: '2px 0 4px 0' },
   onChange: function(v) {
     mosaicLayers.forEach(function(l) { l.setOpacity(v); });
   }
 });
 
-// ── Clasificación / Snow ─────────────────────────────────────────
-var classCheck = ui.Checkbox({
-  label: 'Visible',
-  value: true,
-  onChange: function(v) {
-    classLayers.forEach(function(l) { l.setShown(v); });
-  },
-  style: { fontSize: '12px', margin: '2px 0' }
-});
-
-var classSlider = ui.Slider({
-  min: 0, max: 1, value: 1, step: 0.05,
-  style: { stretch: 'horizontal', margin: '2px 0 6px 0' },
-  onChange: function(v) {
-    classLayers.forEach(function(l) { l.setOpacity(v); });
-  }
-});
-
-// ── Botones de vista rápida ───────────────────────────────────────
-var btnMosaico = ui.Button({
+var btnSoloMosaico = ui.Button({
   label: '🛰 Solo Mosaico',
   style: sBtn,
   onClick: function() {
@@ -250,17 +222,6 @@ var btnMosaico = ui.Button({
     classLayers.forEach(function(l)  { l.setShown(false); });
     mosaicCheck.setValue(true,  false);
     classCheck.setValue(false, false);
-  }
-});
-
-var btnClass = ui.Button({
-  label: '❄ Solo Snow',
-  style: sBtn,
-  onClick: function() {
-    mosaicLayers.forEach(function(l) { l.setShown(false); });
-    classLayers.forEach(function(l)  { l.setShown(true);  });
-    mosaicCheck.setValue(false, false);
-    classCheck.setValue(true,  false);
   }
 });
 
@@ -275,41 +236,23 @@ var btnAmbos = ui.Button({
   }
 });
 
-// ── Armar panel ───────────────────────────────────────────────────
-var controlPanel = ui.Panel({
+var panelMosaico = ui.Panel({
   widgets: [
-    // Header
-    ui.Label('CONTROL GLOBAL', {
+    ui.Label('🛰 Mosaico WET', {
       fontWeight: 'bold', fontSize: '13px',
       color: 'white', backgroundColor: '#1a73e8',
-      padding: '6px 8px', margin: '0 0 8px 0',
+      padding: '5px 8px', margin: '0 0 6px 0',
       stretch: 'horizontal', textAlign: 'center'
     }),
-
-    // Mosaico
-    ui.Label('🛰 Mosaico WET', sTitle),
     mosaicCheck,
     ui.Label('Opacidad:', sSub),
     mosaicSlider,
-
-    ui.Panel([], null, sSep),  // separador
-
-    // Clasificación
-    ui.Label('❄ Estimación Snow', sTitle),
-    classCheck,
-    ui.Label('Opacidad:', sSub),
-    classSlider,
-
-    ui.Panel([], null, sSep),  // separador
-
-    // Vista rápida
-    ui.Label('Vista rápida', sTitle),
-    btnMosaico,
-    btnClass,
+    btnSoloMosaico,
     btnAmbos,
   ],
   layout: ui.Panel.Layout.flow('vertical'),
   style: {
+    position:        'bottom-left',
     width:           '200px',
     padding:         '8px',
     backgroundColor: '#f8f9fa',
@@ -317,9 +260,65 @@ var controlPanel = ui.Panel({
   }
 });
 
-// ── LAYOUT DINÁMICO ──────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// ── PANEL INFERIOR DERECHO · Clasificación / Snow ─────────────────
+// ══════════════════════════════════════════════════════════════════
+var classCheck = ui.Checkbox({
+  label: 'Visible',
+  value: true,
+  onChange: function(v) {
+    classLayers.forEach(function(l) { l.setShown(v); });
+  },
+  style: { fontSize: '12px', margin: '2px 0' }
+});
+
+var classSlider = ui.Slider({
+  min: 0, max: 1, value: 1, step: 0.05,
+  style: { stretch: 'horizontal', margin: '2px 0 4px 0' },
+  onChange: function(v) {
+    classLayers.forEach(function(l) { l.setOpacity(v); });
+  }
+});
+
+var btnSoloClass = ui.Button({
+  label: '❄ Solo Snow',
+  style: sBtn,
+  onClick: function() {
+    mosaicLayers.forEach(function(l) { l.setShown(false); });
+    classLayers.forEach(function(l)  { l.setShown(true);  });
+    mosaicCheck.setValue(false, false);
+    classCheck.setValue(true,  false);
+  }
+});
+
+var panelClass = ui.Panel({
+  widgets: [
+    ui.Label('❄ Estimación Snow', {
+      fontWeight: 'bold', fontSize: '13px',
+      color: 'white', backgroundColor: '#2e7d32',
+      padding: '5px 8px', margin: '0 0 6px 0',
+      stretch: 'horizontal', textAlign: 'center'
+    }),
+    classCheck,
+    ui.Label('Opacidad:', sSub),
+    classSlider,
+    btnSoloClass,
+  ],
+  layout: ui.Panel.Layout.flow('vertical'),
+  style: {
+    position:        'bottom-right',
+    width:           '200px',
+    padding:         '8px',
+    backgroundColor: '#f8f9fa',
+    border:          '1px solid #ccc'
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════
+// ── LAYOUT DINÁMICO ───────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
 var n    = maps.length;
-var cols = 4;
+var cols = 5;
 var rows = [];
 
 var panelStyle = {
@@ -347,5 +346,8 @@ var mainPanel = ui.Panel(
 ui.root.clear();
 ui.root.add(mainPanel);
 
-// Panel de control flotando sobre el primer mapa
-maps[0].add(controlPanel);
+// ── Paneles flotantes anclados al último mapa de cada fila ────────
+// bottom-left  → primer mapa  (esquina inferior izquierda del grid)
+// bottom-right → último mapa  (esquina inferior derecha del grid)
+maps[0].add(panelMosaico);
+maps[n - 1].add(panelClass);
