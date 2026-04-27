@@ -1,5 +1,5 @@
  var listrc = [
-              [1, "PERU"],
+              // [1, "PERU"],
               // [2, "PERU"],
               // [3, "PERU"],
               // [4, "PERU"],
@@ -19,7 +19,7 @@
               // [18, "PERU"],
               // [19, "PERU"],
               // [20, "PERU"],
-              // [21, "PERU"],
+              [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
               // [24, "PERU"],
@@ -53,10 +53,10 @@ for(var rc = 0; rc < listrc.length; rc++){
   var param = { 
       regionGlacier: listrc[rc][0],
       pais: listrc[rc][1], 
-      year: 2021,
+      year: 2002,
       version_input: 4,
       version_output: 5,
-      consistencyThreshold: 0.90  // ← umbral modificable
+      consistencyThreshold: 0.96  // ← umbral modificable
   };
   
   print(param.regionGlacier);
@@ -171,7 +171,8 @@ for(var rc = 0; rc < listrc.length; rc++){
   // ============================================================
   // VISUALIZACIÓN
   // ============================================================
-
+  var yearsToShow = years;
+  
   Map.addLayer(snowPresence.clip(regionGeom), {
       min: 0, max: 26,
       palette: ['white','#00D4FF','#002AFF','#7F0000']
@@ -185,18 +186,32 @@ for(var rc = 0; rc < listrc.length; rc++){
   Map.addLayer(consistentPixels.clip(regionGeom).selfMask(), {
       palette: 'ff0000'
   }, 'Consistent pixels (≥90%) region-' + param.regionGlacier, false);
+  
+  yearsToShow.forEach(function(y){
+      var bandName = 'classification_' + y;
 
-  Map.addLayer(class5FT, {
-      'bands': ['classification_' + param.year],
-      'min': 0, 'max': 34,
-      'palette': palettes.get('classification2')
-  }, 'Original region-' + param.regionGlacier, false);
+      Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
+          min: 0, max: 34,
+          palette: palettes.get('classification2')
+      }, 'Original v' + param.version_input + ' - ' + y, false);
 
-  Map.addLayer(imageConsistency, {
-      'bands': ['classification_' + param.year],
-      'min': 0, 'max': 34,
-      'palette': palettes.get('classification2')
-  }, 'Consistency filter region-' + param.regionGlacier, false);
+      Map.addLayer(imageConsistency.select(bandName).clip(regionGeom), {
+          min: 0, max: 34,
+          palette: palettes.get('classification2')
+      }, 'Consistencia v' + param.version_output + ' - ' + y, false);
+  });
+  
+  // Map.addLayer(class5FT, {
+  //     'bands': ['classification_' + param.year],
+  //     'min': 0, 'max': 34,
+  //     'palette': palettes.get('classification2')
+  // }, 'Original region-' + param.regionGlacier, false);
+
+  // Map.addLayer(imageConsistency, {
+  //     'bands': ['classification_' + param.year],
+  //     'min': 0, 'max': 34,
+  //     'palette': palettes.get('classification2')
+  // }, 'Consistency filter region-' + param.regionGlacier, false);
 
   Map.addLayer(
       region.style({color: 'ff0000', fillColor: 'ff000000'}),
@@ -226,3 +241,7 @@ for(var rc = 0; rc < listrc.length; rc++){
       maxPixels: 1e13
   });
 }
+
+
+var glacierrss = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-2002-1");
+Map.addLayer(glacierrss)
