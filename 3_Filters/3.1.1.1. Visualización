@@ -1,4 +1,4 @@
-var regionGlacier = 1;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1 - 48
+var regionGlacier = 2;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1 - 48
 var versionInput = 4;    // ----> Variable
 
 var YearsSensors =  [
