@@ -54,8 +54,8 @@ for(var rc = 0; rc < listrc.length; rc++){
       regionGlacier: listrc[rc][0],
       pais: listrc[rc][1], 
       year: 2018,
-      version_input: 4, // 5
-      version_output: 5, // 6
+      version_input: 5, // 5
+      version_output: 6, // 6
       persistenceThreshold: 0.80  // ← umbral modificable
   };
   
