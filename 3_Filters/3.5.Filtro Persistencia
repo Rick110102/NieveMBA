@@ -1,24 +1,24 @@
  var listrc = [
               [1, "PERU"],
-              [2, "PERU"],
-              [3, "PERU"],
-              [4, "PERU"],
-              [5, "PERU"],
-              [6, "PERU"],
-              [7, "PERU"],
-              [8, "PERU"],
-              [9, "PERU"],
-              [10, "PERU"],
-              [11, "PERU"],
-              [12, "PERU"],
-              [13, "PERU"],
-              [14, "PERU"],
-              [15, "PERU"],
-              [16, "PERU"],
-              [17, "PERU"],
-              [18, "PERU"],
-              [19, "PERU"],
-              [20, "PERU"],
+              // [2, "PERU"],
+              // [3, "PERU"],
+              // [4, "PERU"],
+              // [5, "PERU"],
+              // [6, "PERU"],
+              // [7, "PERU"],
+              // [8, "PERU"],
+              // [9, "PERU"],
+              // [10, "PERU"],
+              // [11, "PERU"],
+              // [12, "PERU"],
+              // [13, "PERU"],
+              // [14, "PERU"],
+              // [15, "PERU"],
+              // [16, "PERU"],
+              // [17, "PERU"],
+              // [18, "PERU"],
+              // [19, "PERU"],
+              // [20, "PERU"],
               // [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
@@ -55,11 +55,14 @@ for(var rc = 0; rc < listrc.length; rc++){
       pais: listrc[rc][1], 
       year: 2018,
       version_input: 4, // 5
-      version_output: 7, // 6;
+      version_output: 8, // 6;
                         // Nota, versión 6, tiene el filtro de consistencia con 96% y umbral de persistencia con 80%
                         // Versión 7, sin umbral de consistencia para todas las regiones y umbral de persistencia al 50%
                   // Cabe mencionar que nuestro input, sin las regiones sin la corrección del umbral snow, ya que esos assets están en nuestro project. 
-      persistenceThreshold: 0.50  // ← umbral modificable
+                  
+                  // Version 8, sin umbral de consistencia para todas las regiones y umbral de persistencia al 75%
+                  
+      persistenceThreshold: 0.75  // ← umbral modificable
   };
   
   print(param.regionGlacier);
