@@ -1,24 +1,24 @@
  var listrc = [
-              // [1, "PERU"],
-              // [2, "PERU"],
-              // [3, "PERU"],
-              // [4, "PERU"],
-              // [5, "PERU"],
-              // [6, "PERU"],
-              // [7, "PERU"],
-              // [8, "PERU"],
-              // [9, "PERU"],
-              // [10, "PERU"],
-              // [11, "PERU"],
-              // [12, "PERU"],
-              // [13, "PERU"],
-              // [14, "PERU"],
-              // [15, "PERU"],
-              // [16, "PERU"],
-              // [17, "PERU"],
-              // [18, "PERU"],
-              // [19, "PERU"],
-              // [20, "PERU"],
+              [1, "PERU"],
+              [2, "PERU"],
+              [3, "PERU"],
+              [4, "PERU"],
+              [5, "PERU"],
+              [6, "PERU"],
+              [7, "PERU"],
+              [8, "PERU"],
+              [9, "PERU"],
+              [10, "PERU"],
+              [11, "PERU"],
+              [12, "PERU"],
+              [13, "PERU"],
+              [14, "PERU"],
+              [15, "PERU"],
+              [16, "PERU"],
+              [17, "PERU"],
+              [18, "PERU"],
+              [19, "PERU"],
+              [20, "PERU"],
               // [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
@@ -29,24 +29,24 @@
               // [28, "PERU"],
               // [29, "PERU"],
               // [30, "PERU"],
-              [31, "PERU"],
-              [32, "PERU"],
-              [33, "PERU"],
-              [34, "PERU"],
-              [35, "PERU"],
-              [36, "PERU"],
-              [37, "PERU"],
-              [38, "PERU"],
-              [39, "PERU"],
-              [40, "PERU"],
-              [41, "PERU"],
-              [42, "PERU"],
-              [43, "PERU"],
-              [44, "PERU"],
-              [45, "PERU"],
-              [46, "PERU"],
-              [47, "PERU"],
-              [48, "PERU"],
+              // [31, "PERU"],
+              // [32, "PERU"],
+              // [33, "PERU"],
+              // [34, "PERU"],
+              // [35, "PERU"],
+              // [36, "PERU"],
+              // [37, "PERU"],
+              // [38, "PERU"],
+              // [39, "PERU"],
+              // [40, "PERU"],
+              // [41, "PERU"],
+              // [42, "PERU"],
+              // [43, "PERU"],
+              // [44, "PERU"],
+              // [45, "PERU"],
+              // [46, "PERU"],
+              // [47, "PERU"],
+              // [48, "PERU"],
             ];
               
 for(var rc = 0; rc < listrc.length; rc++){
@@ -54,9 +54,12 @@ for(var rc = 0; rc < listrc.length; rc++){
       regionGlacier: listrc[rc][0],
       pais: listrc[rc][1], 
       year: 2018,
-      version_input: 5, // 5
-      version_output: 6, // 6
-      persistenceThreshold: 0.80  // ← umbral modificable
+      version_input: 4, // 5
+      version_output: 7, // 6;
+                        // Nota, versión 6, tiene el filtro de consistencia con 96% y umbral de persistencia con 80%
+                        // Versión 7, sin umbral de consistencia para todas las regiones y umbral de persistencia al 50%
+                  // Cabe mencionar que nuestro input, sin las regiones sin la corrección del umbral snow, ya que esos assets están en nuestro project. 
+      persistenceThreshold: 0.50  // ← umbral modificable
   };
   
   print(param.regionGlacier);
@@ -207,19 +210,19 @@ for(var rc = 0; rc < listrc.length; rc++){
   //     'palette': palettes.get('classification2')
   // }, 'Persistence filter region-' + param.regionGlacier, false);
     // Visualizar múltiples años para v4 y v5
-  yearsToShow.forEach(function(y){
-      var bandName = 'classification_' + y;
+  // yearsToShow.forEach(function(y){
+  //     var bandName = 'classification_' + y;
 
-      Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
-          min: 0, max: 34,
-          palette: palettes.get('classification2')
-      }, 'Original v' + param.version_input + ' - ' + y, false);
+  //     Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
+  //         min: 0, max: 34,
+  //         palette: palettes.get('classification2')
+  //     }, 'Original v' + param.version_input + ' - ' + y, false);
 
-      Map.addLayer(imagePersistence.select(bandName).clip(regionGeom), {
-          min: 0, max: 34,
-          palette: palettes.get('classification2')
-      }, 'Persistencia v' + param.version_output + ' - ' + y, false);
-  });
+  //     Map.addLayer(imagePersistence.select(bandName).clip(regionGeom), {
+  //         min: 0, max: 34,
+  //         palette: palettes.get('classification2')
+  //     }, 'Persistencia v' + param.version_output + ' - ' + y, false);
+  // });
   
 
   Map.addLayer(
