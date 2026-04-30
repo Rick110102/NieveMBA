@@ -1,3 +1,18 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var geometry = /* color: #0b4a8b */ee.Geometry.Polygon(
+        [[[-77.27179589884443, -8.317828940474337],
+          [-76.82135644571943, -9.137684561762907],
+          [-75.34918847696943, -10.981970571776337],
+          [-74.89874902384443, -11.477664132866384],
+          [-74.60211816446943, -11.821983891382427],
+          [-74.30548730509443, -11.854241875348356],
+          [-74.22308984415693, -11.520727352117348],
+          [-74.83832421915693, -10.582653931535866],
+          [-76.20612207071943, -8.812130426724728],
+          [-76.61810937540693, -8.345004899592862],
+          [-76.78839746134443, -8.040527555364024],
+          [-77.11249414103193, -7.969812292514324]]]);
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
 var param = {
     pais: 'PERU',
     years_start: 2000,
@@ -174,7 +189,7 @@ print("Bandas con información sobre los 3400:", integracion_3400.bandNames());
 //
 var biomas = ee.FeatureCollection("projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/BIOMAS")
             .filter(ee.Filter.eq("LEVEL_2", "Andes"));
-// Map.addLayer(biomas);
+Map.addLayer(biomas);
 
 // var biomasRaster = ee.Image().uint16()
 //     .paint({ featureCollection: biomas })
@@ -232,3 +247,6 @@ for (var year = param.years_start; year <= param.years_end; year++) {
 }
 
 
+var glaciar = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-2000-1");
+
+Map.addLayer(glaciar, {palette:["red"]});
