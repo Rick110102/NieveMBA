@@ -20,33 +20,33 @@
               [19, "PERU"],
               [20, "PERU"],
               // [21, "PERU"],
-              // [22, "PERU"],
-              // [23, "PERU"],
-              // [24, "PERU"],
-              // [25, "PERU"],
-              // [26, "PERU"],
-              // [27, "PERU"],
-              // [28, "PERU"],
-              // [29, "PERU"],
-              // [30, "PERU"],
-              // [31, "PERU"],
-              // [32, "PERU"],
-              // [33, "PERU"],
-              // [34, "PERU"],
-              // [35, "PERU"],
-              // [36, "PERU"],
-              // [37, "PERU"],
-              // [38, "PERU"],
-              // [39, "PERU"],
-              // [40, "PERU"],
-              // [41, "PERU"],
-              // [42, "PERU"],
-              // [43, "PERU"],
-              // [44, "PERU"],
-              // [45, "PERU"],
-              // [46, "PERU"],
-              // [47, "PERU"],
-              // [48, "PERU"],
+              [22, "PERU"],
+              [23, "PERU"],
+              [24, "PERU"],
+              [25, "PERU"],
+              [26, "PERU"],
+              [27, "PERU"],
+              [28, "PERU"],
+              [29, "PERU"],
+              [30, "PERU"],
+              [31, "PERU"],
+              [32, "PERU"],
+              [33, "PERU"],
+              [34, "PERU"],
+              [35, "PERU"],
+              [36, "PERU"],
+              [37, "PERU"],
+              [38, "PERU"],
+              [39, "PERU"],
+              [40, "PERU"],
+              [41, "PERU"],
+              [42, "PERU"],
+              [43, "PERU"],
+              [44, "PERU"],
+              [45, "PERU"],
+              [46, "PERU"],
+              [47, "PERU"],
+              [48, "PERU"],
             ];
               
 for(var rc = 0; rc < listrc.length; rc++){
@@ -274,24 +274,24 @@ for(var rc = 0; rc < listrc.length; rc++){
   // EXPORTAR
   // ============================================================
 
-  var imageExport = imagePersistence
-      .select(bandNames)
-      .set('code_region', param.regionGlacier)
-      .set('pais', param.pais)
-      .set('version', param.version_output)
-      .set('descripcion', 'persistence-filter-wet')
-      .set('paso', 'P06')
-      .set('persistence_threshold', param.persistenceThreshold);
+  // var imageExport = imagePersistence
+  //     .select(bandNames)
+  //     .set('code_region', param.regionGlacier)
+  //     .set('pais', param.pais)
+  //     .set('version', param.version_output)
+  //     .set('descripcion', 'persistence-filter-wet')
+  //     .set('paso', 'P06')
+  //     .set('persistence_threshold', param.persistenceThreshold);
 
-  Export.image.toAsset({
-      image: imageExport.updateMask(regionRaster),
-      description: prefixo_out,
-      assetId: dirout + prefixo_out,
-      pyramidingPolicy: {'.default': 'mode'},
-      region: regionGeom.bounds(),
-      scale: 30,
-      maxPixels: 1e13
-  });
+  // Export.image.toAsset({
+  //     image: imageExport.updateMask(regionRaster),
+  //     description: prefixo_out,
+  //     assetId: dirout + prefixo_out,
+  //     pyramidingPolicy: {'.default': 'mode'},
+  //     region: regionGeom.bounds(),
+  //     scale: 30,
+  //     maxPixels: 1e13
+  // });
 }
 
 // ============================================================
