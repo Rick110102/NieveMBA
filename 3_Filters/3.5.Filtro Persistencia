@@ -19,7 +19,7 @@
               // [18, "PERU"],
               // [19, "PERU"],
               // [20, "PERU"],
-              // [21, "PERU"],
+              [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
               // [24, "PERU"],
@@ -44,7 +44,7 @@
               // [43, "PERU"],
               // [44, "PERU"],
               // [45, "PERU"],
-              [46, "PERU"],
+              // [46, "PERU"],
               // [47, "PERU"],
               // [48, "PERU"],
             ];
@@ -62,7 +62,7 @@ for(var rc = 0; rc < listrc.length; rc++){
                   
                   // Version 8, sin umbral de consistencia para todas las regiones y umbral de persistencia al 75%
                   
-      persistenceThreshold: 0.50  // ← umbral modificable
+      persistenceThreshold: 0.80  // ← umbral modificable
   };
   
   print(param.regionGlacier);
@@ -213,19 +213,19 @@ for(var rc = 0; rc < listrc.length; rc++){
   //     'palette': palettes.get('classification2')
   // }, 'Persistence filter region-' + param.regionGlacier, false);
     // Visualizar múltiples años para v4 y v5
-  // yearsToShow.forEach(function(y){
-  //     var bandName = 'classification_' + y;
+  yearsToShow.forEach(function(y){
+      var bandName = 'classification_' + y;
 
-  //     Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
-  //         min: 0, max: 34,
-  //         palette: palettes.get('classification2')
-  //     }, 'Original v' + param.version_input + ' - ' + y, false);
+      Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
+          min: 0, max: 34,
+          palette: palettes.get('classification2')
+      }, 'Original v' + param.version_input + ' - ' + y, false);
 
-  //     Map.addLayer(imagePersistence.select(bandName).clip(regionGeom), {
-  //         min: 0, max: 34,
-  //         palette: palettes.get('classification2')
-  //     }, 'Persistencia v' + param.version_output + ' - ' + y, false);
-  // });
+      Map.addLayer(imagePersistence.select(bandName).clip(regionGeom), {
+          min: 0, max: 34,
+          palette: palettes.get('classification2')
+      }, 'Persistencia v' + param.version_output + ' - ' + y, false);
+  });
   
 
   Map.addLayer(
