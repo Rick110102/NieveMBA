@@ -1,25 +1,25 @@
  var listrc = [
-              // [1, "PERU"],
-              // [2, "PERU"],
-              // [3, "PERU"],
-              // [4, "PERU"],
-              // [5, "PERU"],
-              // [6, "PERU"],
-              // [7, "PERU"],
-              // [8, "PERU"],
-              // [9, "PERU"],
-              // [10, "PERU"],
-              // [11, "PERU"],
-              // [12, "PERU"],
-              // [13, "PERU"],
-              // [14, "PERU"],
-              // [15, "PERU"],
-              // [16, "PERU"],
-              // [17, "PERU"],
-              // [18, "PERU"],
-              // [19, "PERU"],
-              // [20, "PERU"],
-              [21, "PERU"],
+              [1, "PERU"],
+              [2, "PERU"],
+              [3, "PERU"],
+              [4, "PERU"],
+              [5, "PERU"],
+              [6, "PERU"],
+              [7, "PERU"],
+              [8, "PERU"],
+              [9, "PERU"],
+              [10, "PERU"],
+              [11, "PERU"],
+              [12, "PERU"],
+              [13, "PERU"],
+              [14, "PERU"],
+              [15, "PERU"],
+              [16, "PERU"],
+              [17, "PERU"],
+              [18, "PERU"],
+              [19, "PERU"],
+              [20, "PERU"],
+              // [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
               // [24, "PERU"],
@@ -62,7 +62,7 @@ for(var rc = 0; rc < listrc.length; rc++){
                   
                   // Version 8, sin umbral de consistencia para todas las regiones y umbral de persistencia al 75%
                   
-      persistenceThreshold: 0.80  // ← umbral modificable
+      persistenceThreshold: 0.50  // ← umbral modificable
   };
   
   print(param.regionGlacier);
@@ -232,7 +232,44 @@ for(var rc = 0; rc < listrc.length; rc++){
       region.style({color: 'ff0000', fillColor: 'ff000000'}),
       {}, 'Region ' + param.regionGlacier, false
   );
-
+  //
+  //
+  // ============================================================
+  // EXPORTAR persistentPixels como Shapefile a Drive
+  // ============================================================
+  
+  var persistentVectors = persistentPixels
+      .selfMask()                          // solo píxeles con valor 1
+      .clip(regionGeom)
+      .reduceToVectors({
+          reducer: ee.Reducer.countEvery(),
+          geometry: regionGeom,
+          scale: 30,
+          geometryType: 'polygon',
+          eightConnected: false,
+          labelProperty: 'persistent',
+          maxPixels: 1e13
+          // bestEffort: true
+      })
+      .map(function(f){
+          return f.set({
+              'code_region': param.regionGlacier,
+              'pais': param.pais,
+              'threshold': param.persistenceThreshold
+          });
+      });
+  
+  Export.table.toDrive({
+      collection: persistentVectors,
+      description: 'PersistentPixels_region-' + param.regionGlacier,
+      folder: 'PixelsPersistent',
+      fileNamePrefix: 'PersistentPixels_region-' + param.regionGlacier,
+      fileFormat: 'SHP'
+  });
+  //
+  //
+  
+  
   // ============================================================
   // EXPORTAR
   // ============================================================
@@ -256,6 +293,20 @@ for(var rc = 0; rc < listrc.length; rc++){
       maxPixels: 1e13
   });
 }
+
+// ============================================================
+// EXPORTAR AssetRegions como Shapefile a Drive (una sola vez)
+// ============================================================
+
+// var regionsFC = ee.FeatureCollection(AssetRegions);
+
+// Export.table.toDrive({
+//     collection: regionsFC,
+//     description: 'RegionesGlaciaresWet',
+//     folder: 'RegionesGlaciaresWet',
+//     fileNamePrefix: 'RegionesGlaciaresWet',
+//     fileFormat: 'SHP'
+// });
 
 
 
