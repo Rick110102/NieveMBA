@@ -350,5 +350,5 @@ Map.addLayer(snow)
 var glacier = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-2000-1");
 Map.addLayer(glacier, {palette:["red"]})
 
-var persiste = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/persistencia90/Persistencia-90-PERU-1-100");
-Map.addLayer(persiste)
+// var persiste = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/persistencia90/Persistencia-90-PERU-1-100");
+// Map.addLayer(persiste)
