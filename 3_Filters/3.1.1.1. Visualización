@@ -1,6 +1,6 @@
-var regionGlacier = 3;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1 - 48
+var regionGlacier = 21;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1 - 48
 var versionInput = 7;    // ----> Variable
-
+var versionInput35 = 9;
 var YearsSensors =  [
               // [1985,  'lx',      75,    2114,      2497], 
               // [1986,  'lx',      75,    2114,      2497], 
@@ -100,6 +100,11 @@ var regionRaster = region.reduceToImage({
 var classImg = ee.ImageCollection(Class)
   .filter(ee.Filter.eq('code_region', regionGlacier))
   .filter(ee.Filter.eq('version', versionInput));
+  
+var classImg35 = ee.ImageCollection(Class)
+  .filter(ee.Filter.eq('code_region', regionGlacier))
+  .filter(ee.Filter.eq('version', versionInput));
+  
 
 // ── ALMACÉN DE REFERENCIAS ───────────────────────────────────────
 var mosaicLayers = [];
