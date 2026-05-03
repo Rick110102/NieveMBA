@@ -276,23 +276,30 @@ for(var rc = 0; rc < listrc.length; rc++){
   });
   
   
+  // ============================================================
+  // EXPORTAR persistentPixels como Image a Asset
+  // ============================================================
+  
+  var prefixo_persistencia = "Persistencia90" + "-" + param.pais + '-' + param.regionGlacier + '-' + param.version_output;
+  
   var persitenciaExport = persistentPixels
+      .clip(regionGeom)
       .set('code_region', param.regionGlacier)
       .set('pais', param.pais)
       .set('version', param.version_output)
       .set('descripcion', 'capa-persistencia-90')
       .set('paso', 'P06-01')
       .set('persistence_threshold', param.persistenceThreshold);
-      
+  
   Export.image.toAsset({
       image: persitenciaExport.updateMask(regionRaster),
-      description: prefixo_out,
-      assetId: persistenciaCollection + prefixo_out,
+      description: prefixo_persistencia,
+      assetId: persistenciaCollection + prefixo_persistencia,
       pyramidingPolicy: {'.default': 'mode'},
       region: regionGeom.bounds(),
       scale: 30,
       maxPixels: 1e13
-  })
+  });
   //
   //
   
@@ -342,3 +349,6 @@ Map.addLayer(snow)
 
 var glacier = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-2000-1");
 Map.addLayer(glacier, {palette:["red"]})
+
+var persiste = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/persistencia90/Persistencia-90-PERU-1-100");
+Map.addLayer(persiste)
