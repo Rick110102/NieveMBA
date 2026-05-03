@@ -93,7 +93,7 @@ for(var rc = 0; rc < listrc.length; rc++){
                    .filterMetadata('code_region', 'equals', param.regionGlacier)
                    .filterMetadata('version', 'equals', param.version_input)
                    .first();
-  print('Input clasificacion:', class5FT);
+  // print('Input clasificacion:', class5FT)
   
   var years = [
       2000, 2001, 2002, 2003, 2004,
@@ -144,12 +144,12 @@ for(var rc = 0; rc < listrc.length; rc++){
       .divide(totalYears)
       .rename('snow_frequency');
 
-  print('Snow frequency stats:', snowFrequency.reduceRegion({
-      reducer: ee.Reducer.minMax(),
-      geometry: regionGeom,
-      scale: 30,
-      maxPixels: 1e9
-  }));
+  // print('Snow frequency stats:', snowFrequency.reduceRegion({
+  //     reducer: ee.Reducer.minMax(),
+  //     geometry: regionGeom,
+  //     scale: 30,
+  //     maxPixels: 1e9
+  // }));
 
   // PASO 4 - Máscara de píxeles que superan el umbral (≥ 80%)
   // Estos píxeles se mantienen en los años que fueron mapeados
@@ -195,11 +195,11 @@ for(var rc = 0; rc < listrc.length; rc++){
   Map.addLayer(snowFrequency.clip(regionGeom), {
       min: 0, max: 1,
       palette: ['white','#00D4FF','#002AFF','#7F0000']
-  }, 'Snow frequency region-' + param.regionGlacier, true);
+  }, 'Snow frequency region-' + param.regionGlacier, false);
 
   Map.addLayer(persistentPixels.clip(regionGeom).selfMask(), {
       palette: 'ff0000'
-  }, 'Persistent pixels (≥80%) region-' + param.regionGlacier, true);
+  }, 'Persistent pixels (≥80%) region-' + param.regionGlacier, false);
 
   // Map.addLayer(class5FT, {
   //     'bands': ['classification_' + param.year],
@@ -213,19 +213,19 @@ for(var rc = 0; rc < listrc.length; rc++){
   //     'palette': palettes.get('classification2')
   // }, 'Persistence filter region-' + param.regionGlacier, false);
     // Visualizar múltiples años para v4 y v5
-  yearsToShow.forEach(function(y){
-      var bandName = 'classification_' + y;
+  // yearsToShow.forEach(function(y){
+  //     var bandName = 'classification_' + y;
 
-      Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
-          min: 0, max: 34,
-          palette: palettes.get('classification2')
-      }, 'Original v' + param.version_input + ' - ' + y, false);
+  //     Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
+  //         min: 0, max: 34,
+  //         palette: palettes.get('classification2')
+  //     }, 'Original v' + param.version_input + ' - ' + y, false);
 
-      Map.addLayer(imagePersistence.select(bandName).clip(regionGeom), {
-          min: 0, max: 34,
-          palette: palettes.get('classification2')
-      }, 'Persistencia v' + param.version_output + ' - ' + y, false);
-  });
+  //     Map.addLayer(imagePersistence.select(bandName).clip(regionGeom), {
+  //         min: 0, max: 34,
+  //         palette: palettes.get('classification2')
+  //     }, 'Persistencia v' + param.version_output + ' - ' + y, false);
+  // });
   
 
   Map.addLayer(
