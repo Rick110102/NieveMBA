@@ -1,5 +1,5 @@
  var listrc = [
-              // [1, "PERU"],
+              [1, "PERU"],
               // [2, "PERU"],
               // [3, "PERU"],
               // [4, "PERU"],
@@ -33,17 +33,17 @@
               // [32, "PERU"],
               // [33, "PERU"],
               // [34, "PERU"],
-              [35, "PERU"],
-              [36, "PERU"],
-              [37, "PERU"],
-              [38, "PERU"],
-              [39, "PERU"],
-              [40, "PERU"],
-              [41, "PERU"],
-              [42, "PERU"],
-              [43, "PERU"],
-              [44, "PERU"],
-              [45, "PERU"],
+              // [35, "PERU"],
+              // [36, "PERU"],
+              // [37, "PERU"],
+              // [38, "PERU"],
+              // [39, "PERU"],
+              // [40, "PERU"],
+              // [41, "PERU"],
+              // [42, "PERU"],
+              // [43, "PERU"],
+              // [44, "PERU"],
+              // [45, "PERU"],
               // [46, "PERU"],
               // [47, "PERU"],
               // [48, "PERU"],
@@ -70,7 +70,7 @@ for(var rc = 0; rc < listrc.length; rc++){
   var dirinput = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
   var dirout   = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
   
-  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/GlaciarWetRegions';
+  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/GlacierWetRegionesV2';
   
   var AssetRegionsRaster = ee.Image(0).paint(ee.FeatureCollection(AssetRegions), 1);
   
