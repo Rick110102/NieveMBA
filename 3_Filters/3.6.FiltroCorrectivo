@@ -1,0 +1,317 @@
+ var listrc = [
+              [1, "PERU"],
+              // [2, "PERU"],
+              // [3, "PERU"],
+              // [4, "PERU"],
+              // [5, "PERU"],
+              // [6, "PERU"],
+              // [7, "PERU"],
+              // [8, "PERU"],
+              // [9, "PERU"],
+              // [10, "PERU"],
+              // [11, "PERU"],
+              // [12, "PERU"],
+              // [13, "PERU"],
+              // [14, "PERU"],
+              // [15, "PERU"],
+              // [16, "PERU"],
+              // [17, "PERU"],
+              // [18, "PERU"],
+              // [19, "PERU"],
+              // [20, "PERU"],
+              // [21, "PERU"],
+              // [22, "PERU"],
+              // [23, "PERU"],
+              // [24, "PERU"],
+              // [25, "PERU"],
+              // [26, "PERU"],
+              // [27, "PERU"],
+              // [28, "PERU"],
+              // [29, "PERU"],
+              // [30, "PERU"],
+              // [31, "PERU"],
+              // [32, "PERU"],
+              // [33, "PERU"],
+              // [34, "PERU"],
+              // [35, "PERU"],
+              // [36, "PERU"],
+              // [37, "PERU"],
+              // [38, "PERU"],
+              // [39, "PERU"],
+              // [40, "PERU"],
+              // [41, "PERU"],
+              // [42, "PERU"],
+              // [43, "PERU"],
+              // [44, "PERU"],
+              // [45, "PERU"],
+              // [46, "PERU"],
+              // [47, "PERU"],
+              // [48, "PERU"],
+            ];
+              
+for(var rc = 0; rc < listrc.length; rc++){
+  var param = { 
+      regionGlacier: listrc[rc][0],
+      pais: listrc[rc][1], 
+      year: 2018,
+      version_input: 4, // 5
+      version_output: 8, // 6;
+                        // Nota, versión 6, tiene el filtro de consistencia con 96% y umbral de persistencia con 80%
+                        // Versión 7, sin umbral de consistencia para todas las regiones y umbral de persistencia al 50%
+                  // Cabe mencionar que nuestro input, sin las regiones sin la corrección del umbral snow, ya que esos assets están en nuestro project. 
+                  
+                  // Version 8, sin umbral de consistencia para todas las regiones y umbral de persistencia al 75%
+                  
+      persistenceThreshold: 0.35 // ← umbral modificable
+  };
+  
+  print(param.regionGlacier);
+  
+  var dirinput = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
+  var dirout   = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
+  
+  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/GlacierWetRegionesV2';
+  
+  var AssetRegionsRaster = ee.Image(0).paint(ee.FeatureCollection(AssetRegions), 1);
+  
+  var prefixo_out = param.pais + '-' + param.regionGlacier + '-' + param.version_output;
+  
+  var region = ee.FeatureCollection(AssetRegions)
+               .filterMetadata('ord', 'equals', param.regionGlacier);
+              
+  var regionGeom = region.geometry();
+  var regionRaster = AssetRegionsRaster.clip(regionGeom);
+  
+  var palettes = require('users/mapbiomas/modules:Palettes.js');
+  var vis = {
+      'min': 0,
+      'max': 34,
+      'palette': palettes.get('classification2')
+  };
+  
+  var class5FT = ee.ImageCollection(dirinput)
+                   .filterMetadata('code_region', 'equals', param.regionGlacier)
+                   .filterMetadata('version', 'equals', param.version_input)
+                   .first();
+  // print('Input clasificacion:', class5FT)
+  
+  var years = [
+      2000, 2001, 2002, 2003, 2004,
+      2005, 2006, 2007, 2008, 2009,
+      2010, 2011, 2012, 2013, 2014,
+      2015, 2016, 2017, 2018, 2019,
+      2020, 2021, 2022, 2023, 2024,
+      2025
+  ];    
+      
+  var bandNames = ee.List(
+      years.map(function(year){
+          return 'classification_' + String(year);
+      })
+  );
+
+  // ============================================================
+  // FILTRO DE PERSISTENCIA - UMBRAL 80%
+  // Si un píxel está mapeado como nieve (34) en ≥ 80% de los
+  // años → se mantiene en los años que fue mapeado
+  // Si está en < 80% de los años → se elimina de TODOS los años
+  // ============================================================
+
+  // PASO 1 - Contar cuántos años el píxel fue clase 34
+  var snowPresence = bandNames.iterate(
+      function(bandName, acc){
+          bandName = ee.String(bandName);
+          var isSnow = class5FT.select(bandName).eq(34);
+          return ee.Image(acc).add(isSnow);
+      },
+      ee.Image(0)
+  );
+  snowPresence = ee.Image(snowPresence).rename('snow_count');
+
+  // PASO 2 - Total de años con datos válidos por píxel
+  var totalYears = bandNames.iterate(
+      function(bandName, acc){
+          bandName = ee.String(bandName);
+          var hasData = class5FT.select(bandName).mask();
+          return ee.Image(acc).add(hasData);
+      },
+      ee.Image(0)
+  );
+  totalYears = ee.Image(totalYears).rename('total_years');
+
+  // PASO 3 - Calcular frecuencia de presencia como nieve
+  var snowFrequency = snowPresence
+      .divide(totalYears)
+      .rename('snow_frequency');
+
+  // print('Snow frequency stats:', snowFrequency.reduceRegion({
+  //     reducer: ee.Reducer.minMax(),
+  //     geometry: regionGeom,
+  //     scale: 30,
+  //     maxPixels: 1e9
+  // }));
+
+  // PASO 4 - Máscara de píxeles que superan el umbral (≥ 80%)
+  // Estos píxeles se mantienen en los años que fueron mapeados
+  var persistentPixels = snowFrequency
+      .gte(param.persistenceThreshold)
+      .rename('persistent_pixels');
+
+  // PASO 5 - Aplicar filtro de persistencia a cada banda
+  // Si el píxel supera el umbral → mantener clasificación original
+  // Si el píxel NO supera el umbral → forzar 25 en TODOS los años
+  var imagePersistence = ee.Image(0).select([]);
+
+  years.forEach(function(year){
+      var bandName = 'classification_' + year;
+      var originalBand = class5FT.select(bandName);
+
+      // Retirar clase 34 donde píxel NO es persistente
+      var filteredBand = originalBand
+          .where(
+              originalBand.eq(34)
+              .and(persistentPixels.eq(0)), // ← no supera umbral
+              25                             // ← retirar a no-nieve
+          )
+          .rename(bandName);
+
+      imagePersistence = imagePersistence.addBands(filteredBand);
+  });
+
+  // ============================================================
+  // VISUALIZACIÓN
+  // ============================================================
+  
+  // Define aquí los años que quieres visualizar
+  // var yearsToShow = [2015, 2018, 2020, 2023, 2025]; 
+  var yearsToShow = years;
+  
+  
+  Map.addLayer(snowPresence.clip(regionGeom), {
+      min: 0, max: 26,
+      palette: ['white','#00D4FF','#002AFF','#7F0000']
+  }, 'Snow count region-' + param.regionGlacier, false);
+
+  Map.addLayer(snowFrequency.clip(regionGeom), {
+      min: 0, max: 1,
+      palette: ['white','#00D4FF','#002AFF','#7F0000']
+  }, 'Snow frequency region-' + param.regionGlacier, false);
+
+  Map.addLayer(persistentPixels.clip(regionGeom).selfMask(), {
+      palette: 'ff0000'
+  }, 'Persistent pixels (≥80%) region-' + param.regionGlacier, false);
+
+  // Map.addLayer(class5FT, {
+  //     'bands': ['classification_' + param.year],
+  //     'min': 0, 'max': 34,
+  //     'palette': palettes.get('classification2')
+  // }, 'Original region-' + param.regionGlacier, false);
+
+  // Map.addLayer(imagePersistence, {
+  //     'bands': ['classification_' + param.year],
+  //     'min': 0, 'max': 34,
+  //     'palette': palettes.get('classification2')
+  // }, 'Persistence filter region-' + param.regionGlacier, false);
+    // Visualizar múltiples años para v4 y v5
+  // yearsToShow.forEach(function(y){
+  //     var bandName = 'classification_' + y;
+
+  //     Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
+  //         min: 0, max: 34,
+  //         palette: palettes.get('classification2')
+  //     }, 'Original v' + param.version_input + ' - ' + y, false);
+
+  //     Map.addLayer(imagePersistence.select(bandName).clip(regionGeom), {
+  //         min: 0, max: 34,
+  //         palette: palettes.get('classification2')
+  //     }, 'Persistencia v' + param.version_output + ' - ' + y, false);
+  // });
+  
+
+  Map.addLayer(
+      region.style({color: 'ff0000', fillColor: 'ff000000'}),
+      {}, 'Region ' + param.regionGlacier, false
+  );
+  //
+  //
+  // ============================================================
+  // EXPORTAR persistentPixels como Shapefile a Drive
+  // ============================================================
+  
+  var persistentVectors = persistentPixels
+      .selfMask()                          // solo píxeles con valor 1
+      .clip(regionGeom)
+      .reduceToVectors({
+          reducer: ee.Reducer.countEvery(),
+          geometry: regionGeom,
+          scale: 30,
+          geometryType: 'polygon',
+          eightConnected: false,
+          labelProperty: 'persistent',
+          maxPixels: 1e13
+          // bestEffort: true
+      })
+      .map(function(f){
+          return f.set({
+              'code_region': param.regionGlacier,
+              'pais': param.pais,
+              'threshold': param.persistenceThreshold
+          });
+      });
+  
+  Export.table.toDrive({
+      collection: persistentVectors,
+      description: 'PersistentPixels_region-' + param.regionGlacier,
+      folder: 'PixelsPersistent',
+      fileNamePrefix: 'PersistentPixels_region-' + param.regionGlacier,
+      fileFormat: 'SHP'
+  });
+  //
+  //
+  
+  
+  // ============================================================
+  // EXPORTAR
+  // ============================================================
+
+  // var imageExport = imagePersistence
+  //     .select(bandNames)
+  //     .set('code_region', param.regionGlacier)
+  //     .set('pais', param.pais)
+  //     .set('version', param.version_output)
+  //     .set('descripcion', 'persistence-filter-wet')
+  //     .set('paso', 'P06')
+  //     .set('persistence_threshold', param.persistenceThreshold);
+
+  // Export.image.toAsset({
+  //     image: imageExport.updateMask(regionRaster),
+  //     description: prefixo_out,
+  //     assetId: dirout + prefixo_out,
+  //     pyramidingPolicy: {'.default': 'mode'},
+  //     region: regionGeom.bounds(),
+  //     scale: 30,
+  //     maxPixels: 1e13
+  // });
+}
+
+// ============================================================
+// EXPORTAR AssetRegions como Shapefile a Drive (una sola vez)
+// ============================================================
+
+// var regionsFC = ee.FeatureCollection(AssetRegions);
+
+// Export.table.toDrive({
+//     collection: regionsFC,
+//     description: 'RegionesGlaciaresWet',
+//     folder: 'RegionesGlaciaresWet',
+//     fileNamePrefix: 'RegionesGlaciaresWet',
+//     fileFormat: 'SHP'
+// });
+
+
+
+var snow = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-2000-2");
+Map.addLayer(snow)
+
+var glacier = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-2000-1");
+Map.addLayer(glacier, {palette:["red"]})
