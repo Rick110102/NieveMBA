@@ -50,26 +50,22 @@
               // [48, "PERU"],
             ];
               
+
 for(var rc = 0; rc < listrc.length; rc++){
   var param = { 
       regionGlacier: listrc[rc][0],
       pais: listrc[rc][1], 
       year: 2018,
-      persistencia90 : 100,
-      version_input: 9, // 5
-      version_output: 10 , // 6;
-                        // Nota, versión 6, tiene el filtro de consistencia con 96% y umbral de persistencia con 80%
-                        // Versión 7, sin umbral de consistencia para todas las regiones y umbral de persistencia al 50%
-                  // Cabe mencionar que nuestro input, sin las regiones sin la corrección del umbral snow, ya que esos assets están en nuestro project. 
-                  
-                  // Version 8, sin umbral de consistencia para todas las regiones y umbral de persistencia al 75%
-                  // Versión 9, filtro de persistencia al 35%
-                  // La versión 100, contempla la capa única por región del percentil 90
+      persistencia90: 100,
+      version_input: 9,
+      version_output: 10,
+      voidThreshold: 1.30  // ← P90 > P35 * 1.30 → año vacío
   };
   
   print(param.regionGlacier);
   
   var dirinput = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
+  var persistence90 = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/persistencia90';
   var dirout   = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
   
   var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/GlacierWetRegionesV2';
@@ -90,13 +86,21 @@ for(var rc = 0; rc < listrc.length; rc++){
       'max': 34,
       'palette': palettes.get('classification2')
   };
-  
-  var class5FT = ee.ImageCollection(dirinput)
+
+  // ── CARGAR CLASIFICACIÓN v9 (P35) ───────────────────────────
+  var class9FT = ee.ImageCollection(dirinput)
                    .filterMetadata('code_region', 'equals', param.regionGlacier)
                    .filterMetadata('version', 'equals', param.version_input)
                    .first();
-  // print('Input clasificacion:', class5FT)
-  
+  print('Input v9 (P35):', class9FT);
+
+  // ── CARGAR CAPA DE PERSISTENCIA 90% (v100) ──────────────────
+  var persist90 = ee.ImageCollection(persistence90)
+                    .filterMetadata('code_region', 'equals', param.regionGlacier)
+                    .filterMetadata('version', 'equals', param.persistencia90)
+                    .first();
+  print('Input v100 (P90):', persist90);
+
   var years = [
       2000, 2001, 2002, 2003, 2004,
       2005, 2006, 2007, 2008, 2009,
@@ -112,208 +116,186 @@ for(var rc = 0; rc < listrc.length; rc++){
       })
   );
 
-  // ============================================================
-  // FILTRO DE PERSISTENCIA - UMBRAL 80%
-  // Si un píxel está mapeado como nieve (34) en ≥ 80% de los
-  // años → se mantiene en los años que fue mapeado
-  // Si está en < 80% de los años → se elimina de TODOS los años
-  // ============================================================
+  // ── MÁSCARA P90 ──────────────────────────────────────────────
+  // La capa de persistencia 90% es una sola imagen
+  // La usamos como máscara del núcleo glaciar permanente
+  var maskP90 = persist90.eq(34).rename('mask_p90');
 
-  // PASO 1 - Contar cuántos años el píxel fue clase 34
-  var snowPresence = bandNames.iterate(
-      function(bandName, acc){
-          bandName = ee.String(bandName);
-          var isSnow = class5FT.select(bandName).eq(34);
-          return ee.Image(acc).add(isSnow);
-      },
-      ee.Image(0)
-  );
-  snowPresence = ee.Image(snowPresence).rename('snow_count');
+  // Contar píxeles totales de P90 en la región
+  var countP90 = maskP90.reduceRegion({
+      reducer: ee.Reducer.sum(),
+      geometry: regionGeom,
+      scale: 30,
+      maxPixels: 1e9
+  }).get('mask_p90');
 
-  // PASO 2 - Total de años con datos válidos por píxel
-  var totalYears = bandNames.iterate(
-      function(bandName, acc){
-          bandName = ee.String(bandName);
-          var hasData = class5FT.select(bandName).mask();
-          return ee.Image(acc).add(hasData);
-      },
-      ee.Image(0)
-  );
-  totalYears = ee.Image(totalYears).rename('total_years');
+  print('Total píxeles P90:', countP90);
 
-  // PASO 3 - Calcular frecuencia de presencia como nieve
-  var snowFrequency = snowPresence
-      .divide(totalYears)
-      .rename('snow_frequency');
+  // ── DETECTAR AÑOS VACÍOS ─────────────────────────────────────
+  // Por cada año: contar píxeles clase 34 dentro de la zona P90
+  // Si countP90 > countP35_year * 1.30 → año vacío
 
-  // print('Snow frequency stats:', snowFrequency.reduceRegion({
-  //     reducer: ee.Reducer.minMax(),
-  //     geometry: regionGeom,
-  //     scale: 30,
-  //     maxPixels: 1e9
-  // }));
-
-  // PASO 4 - Máscara de píxeles que superan el umbral (≥ 80%)
-  // Estos píxeles se mantienen en los años que fueron mapeados
-  var persistentPixels = snowFrequency
-      .gte(param.persistenceThreshold)
-      .rename('persistent_pixels');
-
-  // PASO 5 - Aplicar filtro de persistencia a cada banda
-  // Si el píxel supera el umbral → mantener clasificación original
-  // Si el píxel NO supera el umbral → forzar 25 en TODOS los años
-  var imagePersistence = ee.Image(0).select([]);
-
-  years.forEach(function(year){
+  var voidYears = years.map(function(year){
       var bandName = 'classification_' + year;
-      var originalBand = class5FT.select(bandName);
 
-      // Retirar clase 34 donde píxel NO es persistente
-      var filteredBand = originalBand
-          .where(
-              originalBand.eq(34)
-              .and(persistentPixels.eq(0)), // ← no supera umbral
-              25                             // ← retirar a no-nieve
-          )
-          .rename(bandName);
+      // Píxeles clase 34 en P35 dentro de la zona P90
+      var countP35year = class9FT
+          .select(bandName)
+          .eq(34)
+          .updateMask(maskP90)  // ← solo dentro de zona P90
+          .reduceRegion({
+              reducer: ee.Reducer.sum(),
+              geometry: regionGeom,
+              scale: 30,
+              maxPixels: 1e9
+          }).get(bandName);
 
-      imagePersistence = imagePersistence.addBands(filteredBand);
+      // ¿P90 supera en más del 30% a P35 en ese año?
+      var isVoid = ee.Number(countP90)
+          .gt(ee.Number(countP35year).multiply(param.voidThreshold));
+
+      return ee.Feature(null, {
+          'year': year,
+          'countP90': countP90,
+          'countP35': countP35year,
+          'isVoid': isVoid
+      });
   });
 
-  // ============================================================
-  // VISUALIZACIÓN
-  // ============================================================
-  
-  // Define aquí los años que quieres visualizar
-  // var yearsToShow = [2015, 2018, 2020, 2023, 2025]; 
-  var yearsToShow = years;
-  
-  
-  Map.addLayer(snowPresence.clip(regionGeom), {
-      min: 0, max: 26,
-      palette: ['white','#00D4FF','#002AFF','#7F0000']
-  }, 'Snow count region-' + param.regionGlacier, false);
+  var voidCollection = ee.FeatureCollection(voidYears);
+  print('Análisis de vacíos por año:', voidCollection);
 
-  Map.addLayer(snowFrequency.clip(regionGeom), {
-      min: 0, max: 1,
-      palette: ['white','#00D4FF','#002AFF','#7F0000']
-  }, 'Snow frequency region-' + param.regionGlacier, false);
+  // ── FUNCIÓN: BUSCAR AÑO VÁLIDO MÁS CERCANO ──────────────────
+  // Busca hacia atrás o hacia adelante el año más cercano
+  // que NO sea vacío y tenga datos de clase 34
 
-  Map.addLayer(persistentPixels.clip(regionGeom).selfMask(), {
-      palette: 'ff0000'
-  }, 'Persistent pixels (≥80%) region-' + param.regionGlacier, false);
+  var findValidYear = function(targetIdx, direction, voidList){
+      // direction: -1 = anterior, +1 = posterior
+      var idx = targetIdx + direction;
+      var maxIter = years.length;
+      var result = -1;
 
-  // Map.addLayer(class5FT, {
-  //     'bands': ['classification_' + param.year],
-  //     'min': 0, 'max': 34,
-  //     'palette': palettes.get('classification2')
-  // }, 'Original region-' + param.regionGlacier, false);
+      for(var i = 0; i < maxIter; i++){
+          if(idx < 0 || idx >= years.length) break;
+          var isVoid = voidList[idx];
+          if(!isVoid){
+              result = idx;
+              break;
+          }
+          idx += direction;
+      }
+      return result;
+  };
 
-  // Map.addLayer(imagePersistence, {
-  //     'bands': ['classification_' + param.year],
-  //     'min': 0, 'max': 34,
-  //     'palette': palettes.get('classification2')
-  // }, 'Persistence filter region-' + param.regionGlacier, false);
-    // Visualizar múltiples años para v4 y v5
-  // yearsToShow.forEach(function(y){
-  //     var bandName = 'classification_' + y;
+  // ── APLICAR FILTRO CORRECTIVO ────────────────────────────────
+  // Necesitamos evaluar voidYears en el cliente con getInfo()
+  // para poder iterar y aplicar correcciones
 
-  //     Map.addLayer(class5FT.select(bandName).clip(regionGeom), {
-  //         min: 0, max: 34,
-  //         palette: palettes.get('classification2')
-  //     }, 'Original v' + param.version_input + ' - ' + y, false);
+  var voidInfo = voidCollection.aggregate_array('isVoid').getInfo();
+  print('Años vacíos (true=vacío):', voidInfo);
 
-  //     Map.addLayer(imagePersistence.select(bandName).clip(regionGeom), {
-  //         min: 0, max: 34,
-  //         palette: palettes.get('classification2')
-  //     }, 'Persistencia v' + param.version_output + ' - ' + y, false);
-  // });
-  
+  var imageCorrectivo = ee.Image(0).select([]);
+
+  years.forEach(function(year, idx){
+      var bandName = 'classification_' + year;
+      var originalBand = class9FT.select(bandName);
+
+      var isVoid = voidInfo[idx];
+
+      if(isVoid){
+          print('Año vacío detectado:', year);
+
+          // Buscar año anterior válido
+          var prevIdx = findValidYear(idx, -1, voidInfo);
+          // Buscar año posterior válido
+          var nextIdx = findValidYear(idx, +1, voidInfo);
+
+          print('Año anterior válido:', prevIdx >= 0 ? years[prevIdx] : 'ninguno');
+          print('Año posterior válido:', nextIdx >= 0 ? years[nextIdx] : 'ninguno');
+
+          var fillBand;
+
+          if(prevIdx >= 0 && nextIdx >= 0){
+              // Intersección: píxeles clase 34 en AMBOS años
+              var prevBand = class9FT.select('classification_' + years[prevIdx]).eq(34);
+              var nextBand = class9FT.select('classification_' + years[nextIdx]).eq(34);
+              var intersection = prevBand.and(nextBand); // ← AND entre ambos
+
+              // Rellenar año vacío con intersección
+              fillBand = originalBand
+                  .where(intersection.and(originalBand.neq(34)), 34)
+                  .rename(bandName);
+
+          } else if(prevIdx >= 0){
+              // Solo año anterior disponible
+              var prevBand = class9FT.select('classification_' + years[prevIdx]).eq(34);
+              fillBand = originalBand
+                  .where(prevBand.and(originalBand.neq(34)), 34)
+                  .rename(bandName);
+
+          } else if(nextIdx >= 0){
+              // Solo año posterior disponible
+              var nextBand = class9FT.select('classification_' + years[nextIdx]).eq(34);
+              fillBand = originalBand
+                  .where(nextBand.and(originalBand.neq(34)), 34)
+                  .rename(bandName);
+
+          } else {
+              // Sin años válidos cercanos → dejar como está
+              fillBand = originalBand.rename(bandName);
+          }
+
+          imageCorrectivo = imageCorrectivo.addBands(fillBand);
+
+      } else {
+          // Año sin vacío → mantener original
+          imageCorrectivo = imageCorrectivo.addBands(
+              originalBand.rename(bandName)
+          );
+      }
+  });
+
+  // ── VISUALIZACIÓN ────────────────────────────────────────────
+
+  Map.addLayer(maskP90.clip(regionGeom).selfMask(), {
+      palette: 'blue'
+  }, 'Persistencia 90% region-' + param.regionGlacier, false);
+
+  Map.addLayer(class9FT, {
+      bands: ['classification_' + param.year],
+      min: 0, max: 34,
+      palette: palettes.get('classification2')
+  }, 'Original v9 (P35) - ' + param.year, false);
+
+  Map.addLayer(imageCorrectivo, {
+      bands: ['classification_' + param.year],
+      min: 0, max: 34,
+      palette: palettes.get('classification2')
+  }, 'Correctivo v10 - ' + param.year, false);
 
   Map.addLayer(
       region.style({color: 'ff0000', fillColor: 'ff000000'}),
       {}, 'Region ' + param.regionGlacier, false
   );
-  //
-  //
-  // ============================================================
-  // EXPORTAR persistentPixels como Shapefile a Drive
-  // ============================================================
-  
-  var persistentVectors = persistentPixels
-      .selfMask()                          // solo píxeles con valor 1
-      .clip(regionGeom)
-      .reduceToVectors({
-          reducer: ee.Reducer.countEvery(),
-          geometry: regionGeom,
-          scale: 30,
-          geometryType: 'polygon',
-          eightConnected: false,
-          labelProperty: 'persistent',
-          maxPixels: 1e13
-          // bestEffort: true
-      })
-      .map(function(f){
-          return f.set({
-              'code_region': param.regionGlacier,
-              'pais': param.pais,
-              'threshold': param.persistenceThreshold
-          });
-      });
-  
-  Export.table.toDrive({
-      collection: persistentVectors,
-      description: 'PersistentPixels_region-' + param.regionGlacier,
-      folder: 'PixelsPersistent',
-      fileNamePrefix: 'PersistentPixels_region-' + param.regionGlacier,
-      fileFormat: 'SHP'
+
+  // ── EXPORTAR ─────────────────────────────────────────────────
+
+  var imageExport = imageCorrectivo
+      .select(bandNames)
+      .set('code_region', param.regionGlacier)
+      .set('pais', param.pais)
+      .set('version', param.version_output)
+      .set('descripcion', 'filtro-correctivo-wet')
+      .set('paso', 'P07')
+      .set('void_threshold', param.voidThreshold);
+
+  Export.image.toAsset({
+      image: imageExport.updateMask(regionRaster),
+      description: prefixo_out,
+      assetId: dirout + prefixo_out,
+      pyramidingPolicy: {'.default': 'mode'},
+      region: regionGeom.bounds(),
+      scale: 30,
+      maxPixels: 1e13
   });
-  //
-  //
-  
-  
-  // ============================================================
-  // EXPORTAR
-  // ============================================================
-
-  // var imageExport = imagePersistence
-  //     .select(bandNames)
-  //     .set('code_region', param.regionGlacier)
-  //     .set('pais', param.pais)
-  //     .set('version', param.version_output)
-  //     .set('descripcion', 'persistence-filter-wet')
-  //     .set('paso', 'P06')
-  //     .set('persistence_threshold', param.persistenceThreshold);
-
-  // Export.image.toAsset({
-  //     image: imageExport.updateMask(regionRaster),
-  //     description: prefixo_out,
-  //     assetId: dirout + prefixo_out,
-  //     pyramidingPolicy: {'.default': 'mode'},
-  //     region: regionGeom.bounds(),
-  //     scale: 30,
-  //     maxPixels: 1e13
-  // });
 }
-
-// ============================================================
-// EXPORTAR AssetRegions como Shapefile a Drive (una sola vez)
-// ============================================================
-
-// var regionsFC = ee.FeatureCollection(AssetRegions);
-
-// Export.table.toDrive({
-//     collection: regionsFC,
-//     description: 'RegionesGlaciaresWet',
-//     folder: 'RegionesGlaciaresWet',
-//     fileNamePrefix: 'RegionesGlaciaresWet',
-//     fileFormat: 'SHP'
-// });
-
-
-
-var snow = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-2000-2");
-Map.addLayer(snow)
-
-var glacier = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-2000-1");
-Map.addLayer(glacier, {palette:["red"]})
