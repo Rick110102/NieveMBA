@@ -1,5 +1,5 @@
  var listrc = [
-              [1, "PERU"],
+              // [1, "PERU"],
               // [2, "PERU"],
               // [3, "PERU"],
               // [4, "PERU"],
@@ -26,7 +26,7 @@
               // [25, "PERU"],
               // [26, "PERU"],
               // [27, "PERU"],
-              // [28, "PERU"],
+              [28, "PERU"],
               // [29, "PERU"],
               // [30, "PERU"],
               // [31, "PERU"],
@@ -119,7 +119,7 @@ for(var rc = 0; rc < listrc.length; rc++){
   // ── MÁSCARA P90 ──────────────────────────────────────────────
   // La capa de persistencia 90% es una sola imagen
   // La usamos como máscara del núcleo glaciar permanente
-  var maskP90 = persist90.eq(34).rename('mask_p90');
+  var maskP90 = persist90.select('persistent_pixels').eq(1);
 
   // Contar píxeles totales de P90 en la región
   var countP90 = maskP90.reduceRegion({
@@ -127,58 +127,55 @@ for(var rc = 0; rc < listrc.length; rc++){
       geometry: regionGeom,
       scale: 30,
       maxPixels: 1e9
-  }).get('mask_p90');
+  }).get('persistent_pixels');
 
   print('Total píxeles P90:', countP90);
 
-  // ── DETECTAR AÑOS VACÍOS ─────────────────────────────────────
-  // Por cada año: contar píxeles clase 34 dentro de la zona P90
-  // Si countP90 > countP35_year * 1.30 → año vacío
+  // ── CONTAR PÍXELES CLASE 34 EN ZONA P90 POR AÑO ─────────────
+  // Construir imagen multiband con 1 donde hay clase 34 dentro de P90
+  // Un solo reduceRegion para todos los años → evita el error
+  var snowInP90 = ee.Image(0).select([]);
 
-  var voidYears = years.map(function(year){
+  years.forEach(function(year){
       var bandName = 'classification_' + year;
-
-      // Píxeles clase 34 en P35 dentro de la zona P90
-      var countP35year = class9FT
-          .select(bandName)
-          .eq(34)
-          .updateMask(maskP90)  // ← solo dentro de zona P90
-          .reduceRegion({
-              reducer: ee.Reducer.sum(),
-              geometry: regionGeom,
-              scale: 30,
-              maxPixels: 1e9
-          }).get(bandName);
-
-      // ¿P90 supera en más del 30% a P35 en ese año?
-      var isVoid = ee.Number(countP90)
-          .gt(ee.Number(countP35year).multiply(param.voidThreshold));
-
-      return ee.Feature(null, {
-          'year': year,
-          'countP90': countP90,
-          'countP35': countP35year,
-          'isVoid': isVoid
-      });
+      var band = class9FT.select(bandName).eq(34)
+                         .updateMask(maskP90)  // solo dentro de P90
+                         .unmask(0)
+                         .rename(bandName);
+      snowInP90 = snowInP90.addBands(band);
   });
 
-  var voidCollection = ee.FeatureCollection(voidYears);
-  print('Análisis de vacíos por año:', voidCollection);
+  // UN SOLO reduceRegion para todos los años
+  var countsP35inP90 = snowInP90.reduceRegion({
+      reducer: ee.Reducer.sum(),
+      geometry: regionGeom,
+      scale: 30,
+      maxPixels: 1e9
+  });
+
+  print('Conteos P35 dentro de P90 por año:', countsP35inP90);
+
+  // ── DETECTAR AÑOS VACÍOS EN EL CLIENTE ──────────────────────
+  var countsInfo = countsP35inP90.getInfo();
+  var countP90val = ee.Number(countP90).getInfo();
+
+  print('Total píxeles P90 (valor):', countP90val);
+
+  var voidYearsList = years.map(function(year){
+      var bandName = 'classification_' + year;
+      var countP35 = countsInfo[bandName] || 0;
+      var isVoid = countP90val > countP35 * param.voidThreshold;
+      print('Año ' + year + ' | P90: ' + countP90val + ' | P35: ' + countP35 + ' | Vacío: ' + isVoid);
+      return isVoid;
+  });
 
   // ── FUNCIÓN: BUSCAR AÑO VÁLIDO MÁS CERCANO ──────────────────
-  // Busca hacia atrás o hacia adelante el año más cercano
-  // que NO sea vacío y tenga datos de clase 34
-
   var findValidYear = function(targetIdx, direction, voidList){
-      // direction: -1 = anterior, +1 = posterior
       var idx = targetIdx + direction;
-      var maxIter = years.length;
       var result = -1;
-
-      for(var i = 0; i < maxIter; i++){
+      for(var i = 0; i < years.length; i++){
           if(idx < 0 || idx >= years.length) break;
-          var isVoid = voidList[idx];
-          if(!isVoid){
+          if(!voidList[idx]){
               result = idx;
               break;
           }
@@ -188,67 +185,53 @@ for(var rc = 0; rc < listrc.length; rc++){
   };
 
   // ── APLICAR FILTRO CORRECTIVO ────────────────────────────────
-  // Necesitamos evaluar voidYears en el cliente con getInfo()
-  // para poder iterar y aplicar correcciones
-
-  var voidInfo = voidCollection.aggregate_array('isVoid').getInfo();
-  print('Años vacíos (true=vacío):', voidInfo);
-
   var imageCorrectivo = ee.Image(0).select([]);
 
   years.forEach(function(year, idx){
       var bandName = 'classification_' + year;
       var originalBand = class9FT.select(bandName);
-
-      var isVoid = voidInfo[idx];
+      var isVoid = voidYearsList[idx];
 
       if(isVoid){
-          print('Año vacío detectado:', year);
+          print('⚠️ Año vacío detectado:', year);
 
-          // Buscar año anterior válido
-          var prevIdx = findValidYear(idx, -1, voidInfo);
-          // Buscar año posterior válido
-          var nextIdx = findValidYear(idx, +1, voidInfo);
+          var prevIdx = findValidYear(idx, -1, voidYearsList);
+          var nextIdx = findValidYear(idx, +1, voidYearsList);
 
-          print('Año anterior válido:', prevIdx >= 0 ? years[prevIdx] : 'ninguno');
-          print('Año posterior válido:', nextIdx >= 0 ? years[nextIdx] : 'ninguno');
+          print('  Año anterior válido:', prevIdx >= 0 ? years[prevIdx] : 'ninguno');
+          print('  Año posterior válido:', nextIdx >= 0 ? years[nextIdx] : 'ninguno');
 
           var fillBand;
 
           if(prevIdx >= 0 && nextIdx >= 0){
-              // Intersección: píxeles clase 34 en AMBOS años
+              // Intersección AND entre año anterior y posterior
               var prevBand = class9FT.select('classification_' + years[prevIdx]).eq(34);
               var nextBand = class9FT.select('classification_' + years[nextIdx]).eq(34);
-              var intersection = prevBand.and(nextBand); // ← AND entre ambos
+              var intersection = prevBand.and(nextBand);
 
-              // Rellenar año vacío con intersección
               fillBand = originalBand
                   .where(intersection.and(originalBand.neq(34)), 34)
                   .rename(bandName);
 
           } else if(prevIdx >= 0){
-              // Solo año anterior disponible
               var prevBand = class9FT.select('classification_' + years[prevIdx]).eq(34);
               fillBand = originalBand
                   .where(prevBand.and(originalBand.neq(34)), 34)
                   .rename(bandName);
 
           } else if(nextIdx >= 0){
-              // Solo año posterior disponible
               var nextBand = class9FT.select('classification_' + years[nextIdx]).eq(34);
               fillBand = originalBand
                   .where(nextBand.and(originalBand.neq(34)), 34)
                   .rename(bandName);
 
           } else {
-              // Sin años válidos cercanos → dejar como está
               fillBand = originalBand.rename(bandName);
           }
 
           imageCorrectivo = imageCorrectivo.addBands(fillBand);
 
       } else {
-          // Año sin vacío → mantener original
           imageCorrectivo = imageCorrectivo.addBands(
               originalBand.rename(bandName)
           );
