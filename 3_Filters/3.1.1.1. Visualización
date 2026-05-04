@@ -1,6 +1,7 @@
 var regionGlacier = 21;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1 - 48
 var versionInput = 7;    // ----> Variable
 var versionInput35 = 9;
+
 var YearsSensors =  [
               // [1985,  'lx',      75,    2114,      2497], 
               // [1986,  'lx',      75,    2114,      2497], 
@@ -103,12 +104,13 @@ var classImg = ee.ImageCollection(Class)
   
 var classImg35 = ee.ImageCollection(Class)
   .filter(ee.Filter.eq('code_region', regionGlacier))
-  .filter(ee.Filter.eq('version', versionInput));
+  .filter(ee.Filter.eq('version', versionInput35));
   
 
 // ── ALMACÉN DE REFERENCIAS ───────────────────────────────────────
 var mosaicLayers = [];
 var classLayers  = [];
+var classLayers35  = [];
 
 // ── CREAR MAPAS Y SINCRONIZAR ────────────────────────────────────
 var maps = YearsSensors.map(function() { return ui.Map(); });
@@ -137,6 +139,8 @@ YearsSensors.forEach(function(yearsensor, i) {
   Mosaic = smafractions.getFractions(Mosaic);
 
   var classYear = classImg.select(['classification_' + year]);
+  
+  var classYear35 = classImg35.select(['classification_' + year]);
 
   // Crear layers con referencia guardada
   var mosaicLayer = ui.Map.Layer(
@@ -151,6 +155,11 @@ YearsSensors.forEach(function(yearsensor, i) {
     true, 1.0
   );
 
+  var classLayer35 = ui.Map.Layer(
+    classYear35, vis_class,
+    'Estimacion al 35% Snow ' + year,
+    false
+  );
   var regionLayer = ui.Map.Layer(
     region.style({ fillColor: '#00000000', color: 'FFA500', width: 2 }),
     {}, 'Región ' + regionGlacier, true
@@ -158,10 +167,12 @@ YearsSensors.forEach(function(yearsensor, i) {
 
   m.layers().add(mosaicLayer);
   m.layers().add(classLayer);
+  m.layers().add(classLayer35);
   m.layers().add(regionLayer);
 
   mosaicLayers.push(mosaicLayer);
   classLayers.push(classLayer);
+  classLayers35.push(classLayer35);
 
   // Etiqueta
   m.add(ui.Label(year + ' · ' + sensor.toUpperCase(), {
@@ -225,6 +236,7 @@ var btnSoloMosaico = ui.Button({
   onClick: function() {
     mosaicLayers.forEach(function(l) { l.setShown(true);  });
     classLayers.forEach(function(l)  { l.setShown(false); });
+    classLayers35.forEach(function(l)  { l.setShown(false); });
     mosaicCheck.setValue(true,  false);
     classCheck.setValue(false, false);
   }
@@ -236,6 +248,7 @@ var btnAmbos = ui.Button({
   onClick: function() {
     mosaicLayers.forEach(function(l) { l.setShown(true); });
     classLayers.forEach(function(l)  { l.setShown(true); });
+    classLayers35.forEach(function(l)  { l.setShown(false); });
     mosaicCheck.setValue(true, false);
     classCheck.setValue(true, false);
   }
@@ -273,6 +286,7 @@ var classCheck = ui.Checkbox({
   value: true,
   onChange: function(v) {
     classLayers.forEach(function(l) { l.setShown(v); });
+    classLayers35.forEach(function(l) { l.setShown(v); });
   },
   style: { fontSize: '12px', margin: '2px 0' }
 });
@@ -282,6 +296,7 @@ var classSlider = ui.Slider({
   style: { stretch: 'horizontal', margin: '2px 0 4px 0' },
   onChange: function(v) {
     classLayers.forEach(function(l) { l.setOpacity(v); });
+    classLayers35.forEach(function(l) { l.setShown(v); });
   }
 });
 
@@ -291,6 +306,7 @@ var btnSoloClass = ui.Button({
   onClick: function() {
     mosaicLayers.forEach(function(l) { l.setShown(false); });
     classLayers.forEach(function(l)  { l.setShown(true);  });
+    classLayers35.forEach(function(l)  { l.setShown(true);  });
     mosaicCheck.setValue(false, false);
     classCheck.setValue(true,  false);
   }
