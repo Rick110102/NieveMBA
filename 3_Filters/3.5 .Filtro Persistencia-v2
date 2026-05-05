@@ -1,5 +1,5 @@
  var listrc = [
-              [1, "PERU"],
+              // [1, "PERU"],
               // [2, "PERU"],
               // [3, "PERU"],
               // [4, "PERU"],
@@ -19,7 +19,7 @@
               // [18, "PERU"],
               // [19, "PERU"],
               // [20, "PERU"],
-              // [21, "PERU"],
+              [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
               // [24, "PERU"],
@@ -62,7 +62,7 @@ for(var rc = 0; rc < listrc.length; rc++){
                   
                   // Version 8, sin umbral de consistencia para todas las regiones y umbral de persistencia al 75%
                   
-      persistenceThreshold: 0.35 // ← umbral modificable
+      persistenceThreshold: 0.30 // ← umbral modificable
   };
   
   print(param.regionGlacier);
@@ -314,4 +314,4 @@ var snow = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACI
 Map.addLayer(snow)
 
 var glacier = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-2000-1");
-Map.addLayer(glacier, {palette:["red"]})
+Map.addLayer(glacier, {palette:["green"]})
