@@ -3,7 +3,7 @@
               // [2, "PERU"],
               // [3, "PERU"],
               // [4, "PERU"],
-              [5, "PERU"],
+              // [5, "PERU"],
               // [6, "PERU"],
               // [7, "PERU"],
               // [8, "PERU"],
@@ -57,8 +57,8 @@ for(var rc = 0; rc < listrc.length; rc++){
       pais: listrc[rc][1], 
       year: 2011,
       persistencia90: 100,
-      version_input: 9,
-      version_output: 10,
+      version_input: 19,
+      version_output: 20,
       voidThreshold: 1.30 // ← P90 > P35 * 1.30 → año vacío
   };
   
@@ -68,7 +68,7 @@ for(var rc = 0; rc < listrc.length; rc++){
   var persistence90 = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/persistencia90';
   var dirout   = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
   
-  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/GlacierWetRegionesV2';
+  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/45RegionesGlaciarWet';
   
   var AssetRegionsRaster = ee.Image(0).paint(ee.FeatureCollection(AssetRegions), 1);
   
