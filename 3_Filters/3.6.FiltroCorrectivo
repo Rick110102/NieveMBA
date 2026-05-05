@@ -8,7 +8,7 @@
               // [7, "PERU"],
               // [8, "PERU"],
               // [9, "PERU"],
-              // [10, "PERU"],
+              // [10, "PERU"]
               // [11, "PERU"],
               // [12, "PERU"],
               // [13, "PERU"],
@@ -26,24 +26,24 @@
               // [25, "PERU"],
               // [26, "PERU"],
               // [27, "PERU"],
-              [28, "PERU"],
+              // [28, "PERU"],
               // [29, "PERU"],
               // [30, "PERU"],
-              // [31, "PERU"],
-              // [32, "PERU"],
-              // [33, "PERU"],
-              // [34, "PERU"],
-              // [35, "PERU"],
-              // [36, "PERU"],
-              // [37, "PERU"],
-              // [38, "PERU"],
-              // [39, "PERU"],
-              // [40, "PERU"],
-              // [41, "PERU"],
-              // [42, "PERU"],
-              // [43, "PERU"],
-              // [44, "PERU"],
-              // [45, "PERU"],
+              [31, "PERU"],
+              [32, "PERU"],
+              [33, "PERU"],
+              [34, "PERU"],
+              [35, "PERU"],
+              [36, "PERU"],
+              [37, "PERU"],
+              [38, "PERU"],
+              [39, "PERU"],
+              [40, "PERU"],
+              [41, "PERU"],
+              [42, "PERU"],
+              [43, "PERU"],
+              [44, "PERU"],
+              [45, "PERU"],
               // Regiones 46, 47 y 48 descartadas de las regiones de procesamiento final.
               // [46, "PERU"],
               // [47, "PERU"],
@@ -55,7 +55,7 @@ for(var rc = 0; rc < listrc.length; rc++){
   var param = { 
       regionGlacier: listrc[rc][0],
       pais: listrc[rc][1], 
-      year: 2018,
+      year: 2011,
       persistencia90: 100,
       version_input: 9,
       version_output: 10,
@@ -165,7 +165,7 @@ for(var rc = 0; rc < listrc.length; rc++){
       var bandName = 'classification_' + year;
       var countP35 = countsInfo[bandName] || 0;
       var isVoid = countP90val > countP35 * param.voidThreshold;
-      print('Año ' + year + ' | P90: ' + countP90val + ' | P35: ' + countP35 + ' | Vacío: ' + isVoid);
+      print("Region " + param.regionGlacier + " | " + 'Año ' + year + ' | P90: ' + countP90val + ' | P35: ' + countP35 + ' | Vacío: ' + isVoid);
       return isVoid;
   });
 
@@ -240,15 +240,20 @@ for(var rc = 0; rc < listrc.length; rc++){
 
   // ── VISUALIZACIÓN ────────────────────────────────────────────
 
-  Map.addLayer(maskP90.clip(regionGeom).selfMask(), {
-      palette: 'blue'
-  }, 'Persistencia 90% region-' + param.regionGlacier, false);
+  // Map.addLayer(maskP90.clip(regionGeom).selfMask(), {
+  //     palette: 'blue'
+  // }, 'Persistencia 90% region-' + param.regionGlacier, false);
 
   Map.addLayer(class9FT, {
       bands: ['classification_' + param.year],
       min: 0, max: 34,
       palette: palettes.get('classification2')
   }, 'Original v9 (P35) - ' + param.year, false);
+  
+  
+  Map.addLayer(maskP90.clip(regionGeom).selfMask(), {
+      palette: 'red'
+  }, 'Persistencia 90% region-' + param.regionGlacier, false);
 
   Map.addLayer(imageCorrectivo, {
       bands: ['classification_' + param.year],
