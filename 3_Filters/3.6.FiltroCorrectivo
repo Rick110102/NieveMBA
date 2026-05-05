@@ -19,7 +19,7 @@
               // [18, "PERU"],
               // [19, "PERU"],
               // [20, "PERU"],
-              // [21, "PERU"],
+              [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
               // [24, "PERU"],
@@ -55,8 +55,8 @@ for(var rc = 0; rc < listrc.length; rc++){
   var param = { 
       regionGlacier: listrc[rc][0],
       pais: listrc[rc][1], 
-      year: 2011,
-      persistencia90: 100,
+      year: 2002,
+      persistencia90: 101,
       version_input: 19,
       version_output: 20,
       voidThreshold: 1.30 // ← P90 > P35 * 1.30 → año vacío
