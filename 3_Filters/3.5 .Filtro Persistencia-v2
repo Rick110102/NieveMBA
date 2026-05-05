@@ -19,8 +19,8 @@
               // [18, "PERU"],
               // [19, "PERU"],
               // [20, "PERU"],
-              [21, "PERU"],
-              // [22, "PERU"],
+              // [21, "PERU"],
+              [22, "PERU"],
               // [23, "PERU"],
               // [24, "PERU"],
               // [25, "PERU"],
@@ -55,12 +55,19 @@ for(var rc = 0; rc < listrc.length; rc++){
       pais: listrc[rc][1], 
       year: 2018,
       version_input: 4, // 5
-      version_output: 8, // 6;
+      version_output: 19, // 6;
                         // Nota, versión 6, tiene el filtro de consistencia con 96% y umbral de persistencia con 80%
                         // Versión 7, sin umbral de consistencia para todas las regiones y umbral de persistencia al 50%
                   // Cabe mencionar que nuestro input, sin las regiones sin la corrección del umbral snow, ya que esos assets están en nuestro project. 
                   
-                  // Version 8, sin umbral de consistencia para todas las regiones y umbral de persistencia al 75%
+                   // Version 8, sin umbral de consistencia para todas las regiones y umbral de persistencia al 75%
+                   
+                  // Version 9, toma las regiones nuevas, sin estimar las sombras de amazonía y bajamos el umbral de 50 a 35, 15%, la versión 9, no funciona bien, debido al mal ajuste de las regiones de procesamiento
+                  // version 19, umbral al 35%, revisamos y ajustamos las regiones, para no tener el problema de la versión 9
+                  
+                  // Version 100, toma el mapeo de la persistencia al 90%, para poder hacer una comparativa de vacíos de información.
+                  // Donde la intersección del área de la persistencia al 90%, tenga píxeles vacíos mayores al 50%, 
+                  // Aplicamos un relleno con el promedio de las imágenes del año anterior con el posterior, solo para ese año vacío
                   
       persistenceThreshold: 0.30 // ← umbral modificable
   };
@@ -70,7 +77,7 @@ for(var rc = 0; rc < listrc.length; rc++){
   var dirinput = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
   var dirout   = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
   
-  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/GlacierWetRegionesV2';
+  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/45RegionesGlaciarWet';
   
   var AssetRegionsRaster = ee.Image(0).paint(ee.FeatureCollection(AssetRegions), 1);
   
