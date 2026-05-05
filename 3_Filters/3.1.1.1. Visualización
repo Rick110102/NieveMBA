@@ -1,4 +1,4 @@
-var regionGlacier = 21;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1 - 48
+var regionGlacier = 28;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1 - 48
 var versionInput = 7;    // ----> Variable
 var versionInput35 = 9;
 
@@ -54,11 +54,11 @@ var YearsSensors =  [
               // [2021,  'l8',      75,     1730,      2304],
               // [2022,  'l8',      75,     1730,      2304],
               // [2023,  'l8',      75,     1730,      2304],
-              // [2024,  'l8',      75,     1730,      2304],
+              [2024,  'l8',      75,     1730,      2304],
               [2025,  'l8',      75,     1730,      2304],
               // [2022,  'l9',      75,     1730,      2304],
               // [2023,  'l9',      75,     1730,      2304],
-              // [2024,  'l9',      75,     1730,      2304],
+              [2024,  'l9',      75,     1730,      2304],
               // [2025,  'l9',      75,     1730,      2304],
             ]  
 
