@@ -44,9 +44,9 @@ var listrc = [
               [43, "PERU"],
               [44, "PERU"],
               [45, "PERU"],
-              [46, "PERU"],
-              [47, "PERU"],
-              [48, "PERU"],
+              // [46, "PERU"],
+              // [47, "PERU"],
+              // [48, "PERU"],
             ];
               
 for(var rc = 0; rc<listrc.length; rc++){
