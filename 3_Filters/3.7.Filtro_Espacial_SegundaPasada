@@ -1,25 +1,25 @@
 var listrc = [
-              [1, "PERU"],
-              [2, "PERU"],
-              [3, "PERU"],
-              [4, "PERU"],
-              [5, "PERU"],
-              [6, "PERU"],
-              [7, "PERU"],
-              [8, "PERU"],
-              [9, "PERU"],
-              [10, "PERU"],
-              [11, "PERU"],
-              [12, "PERU"],
-              [13, "PERU"],
-              [14, "PERU"],
-              [15, "PERU"],
-              [16, "PERU"],
-              [17, "PERU"],
-              [18, "PERU"],
-              [19, "PERU"],
-              [20, "PERU"],
-              [21, "PERU"],
+              // [1, "PERU"],
+              // [2, "PERU"],
+              // [3, "PERU"],
+              // [4, "PERU"],
+              // [5, "PERU"],
+              // [6, "PERU"],
+              // [7, "PERU"],
+              // [8, "PERU"],
+              // [9, "PERU"],
+              // [10, "PERU"],
+              // [11, "PERU"],
+              // [12, "PERU"],
+              // [13, "PERU"],
+              // [14, "PERU"],
+              // [15, "PERU"],
+              // [16, "PERU"],
+              // [17, "PERU"],
+              // [18, "PERU"],
+              // [19, "PERU"],
+              // [20, "PERU"],
+              // [21, "PERU"],
               [22, "PERU"],
               [23, "PERU"],
               [24, "PERU"],
@@ -55,8 +55,8 @@ for(var rc = 0; rc<listrc.length; rc++){
       regionGlacier: listrc[rc][0],  //Region de Clasificacion
       pais: listrc[rc][1], 
       year: 2000,  // Solo visualizacion
-      version_input: 3,
-      version_output: 4,
+      version_input: 20,
+      version_output: 21,
       eightConnected: true,
       min_connect_pixel: 5
   };
@@ -67,7 +67,7 @@ for(var rc = 0; rc<listrc.length; rc++){
   var dirout  =   'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
   // var AssetMosaic='projects/nexgenmap/MapBiomas2/LANDSAT/PANAMAZON/mosaics-2'
   
-  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/GlacierWetRegionesV2';
+  var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/45RegionesGlaciarWet';
   
   // Rasterización de la región de procesamiento
   var AssetRegionsRaster = ee.Image(0).paint(ee.FeatureCollection(AssetRegions), 1);
