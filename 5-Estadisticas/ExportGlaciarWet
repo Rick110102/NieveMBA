@@ -8,7 +8,7 @@ var AssetRegions = ee.FeatureCollection(
 );
 
 var glacierRegionIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 
-                        24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45  ];
+                        24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45];
 
 // Filtramos solo las regiones de interés y las disolvemos en UNA sola geometría
 var REGION = AssetRegions
@@ -75,9 +75,9 @@ function exportYear(year) {
 
   Export.table.toDrive({
     collection:     vectors,
-    description:    'SHP_glacier_C4_' + year,
+    description:    'SHP_SNOW_C4_' + year,
     folder:         FOLDER_SHP,
-    fileNamePrefix: 'glacier_C4_' + year,
+    fileNamePrefix: 'SNOW_C4_' + year,
     fileFormat:     'SHP'
   });
 }
