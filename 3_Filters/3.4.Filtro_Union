@@ -14,17 +14,18 @@ var biomas = ee.FeatureCollection("projects/mapbiomas-peru/assets/LAND-COVER/AUX
 // Función para crear el mosaico
 function mosaicSnow(año){
   var ClassDry = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-" + año + "-1");
-  var ClassWet = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-" + año + "-3");
+  var ClassWet = ee.Image("projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-" + año + "-4");
       /*Recordar version 1 = Sin filtros altitudinales ni de bioma
                   version 2 = Con filtro altitudinal -> Delimita presencia de nieve en base a la altitud mínima de nieve registrada
                   version 3 = Con filtro de bioma -> Delimitada a la región Andes
+                  version 4 = Contempla los datos con filtros aplicados, de persistencia y de corrección para años vacíos, sin filtros de bioma o altitud
       */
                   
     var mosaico = ee.ImageCollection([ClassDry, ClassWet]).mosaic()
                   .set({
                     "year": año,
                     "collection": "4",
-                    "version": "1",
+                    "version": "2", // Versión 2, por la presencia de filtros y demás, comparar con la versión 1, debe existir gran diferencia.
                     "country": "PERU",
                     "Source": "IBC",
                     "Theme": "Snow",
@@ -46,7 +47,7 @@ años.forEach(function(año){
   Export.image.toAsset({
     image: imgSnow,
     description: "PERU-SNOW-" + año,
-    assetId: "projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-" + año + "-1" ,
+    assetId: "projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-" + año + "-2" ,
     scale: 30,
     region: biomas.geometry().bounds(),
     maxPixels: 1e13
