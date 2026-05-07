@@ -1,0 +1,132 @@
+// Definimos el rango de años para procesar
+var startYear = 1985;
+var endYear = 2025;
+
+// Cargar Assets de regiones glaciares
+var AssetRegions = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/clasificacion-regiones-glacier-5';
+var AssetRegionsRaster = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/RASTER/clasificacion-regiones-glacier-5';
+
+// Lista de IDs de regiones de glaciares a procesar
+var glacierRegionIds = [1005, 1006, 1007, 1008, 1009, 1010, 1011, 1013];
+
+// Carga completa de la colección de assets
+var allRegions = ee.FeatureCollection(AssetRegions);
+
+// Crear un array de colores para distinguir las regiones
+var colors = ['FF0000', '00FF00', '0000FF', 'FFFF00', 'FF00FF', '00FFFF', 'FFA500', '800080'];
+
+// Inicializar colección para almacenar las estadísticas
+var statsCollection = ee.FeatureCollection([]);
+
+// Función para vectorizar una imagen raster de glaciares
+var vectorizeGlacier = function(image) {
+  // Asegurar que los valores sean 1 para glaciares
+  var binaryImage = image.eq(1);
+  
+  // Vectorizar la imagen binaria
+  var vectors = binaryImage.reduceToVectors({
+    geometryType: 'polygon',
+    scale: 30,
+    eightConnected: true,
+    maxPixels: 1e10,
+    geometry: image.geometry()
+  });
+  
+  // Añadir área en km² a cada polígono
+  vectors = vectors.map(function(feature) {
+    var area = feature.geometry().area(0.5).divide(1000000); // Convertir a km²
+    return feature.set('area_km2', area);
+  });
+  
+  return vectors;
+};
+
+// Función para calcular área por región y año
+var calculateAreaByRegion = function(glacierVectors, regionGeometry, regionId, year) {
+  // Recortar vectores de glaciares por la región
+  var regionGlaciers = glacierVectors.filterBounds(regionGeometry);
+  
+  // Sumar todas las áreas
+  var totalArea = ee.Number(regionGlaciers.aggregate_sum('area_km2'))
+                   .multiply(100).round().divide(100); // Redondear a 2 decimales
+  
+  // Crear feature con estadísticas
+  var feature = ee.Feature(null, {
+    'region_id': regionId,
+    'year': year,
+    'area_km2': totalArea,
+    'region_name': 'Región Glaciar ' + regionId
+  });
+  
+  return feature;
+};
+
+// Crear una lista para almacenar tareas de procesamiento
+var tasks = [];
+
+// Procesar cada año primero (vectorizar una sola vez)
+for (var year = startYear; year <= endYear; year++) {
+  // Intentar cargar los datos para este año
+  var glacierImage;
+  
+  try {
+    // Cargar la imagen raster de glaciares para este año
+    glacierImage = ee.Image('projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-' + year + '-1');
+    
+    // Para la coleccion anterior
+    
+    // glacierImage = ee.Image('projects/mapbiomas-raisg/TRANSVERSALES/PERU/COLECCION5/GLACIAR/INTEGRACION/glaciar5/PERU-'+ year+ '-1')
+    // Vectorizar la imagen de glaciares
+    var glacierVectors = vectorizeGlacier(glacierImage);
+    
+    // Añadir vectores al mapa para años seleccionados (opcional)
+    if (year % 5 === 0) {
+      Map.addLayer(
+        glacierVectors, 
+        {color: 'cyan'}, 
+        'Vectores Glaciares ' + year, 
+        false
+      );
+    }
+    
+    // Procesar cada región para este año
+    glacierRegionIds.forEach(function(regionId, index) {
+      var singleRegion = allRegions.filter(ee.Filter.eq('id_regionC', regionId));
+      var regionGeometry = singleRegion.geometry();
+      
+      // Añadir región al mapa (solo la primera vez)
+      if (year === startYear) {
+        Map.addLayer(
+          singleRegion, 
+          {color: colors[index]}, 
+          'Región Glaciar ' + regionId,
+          false
+        );
+      }
+      
+      // Calcular estadísticas para esta región y año
+      var stats = calculateAreaByRegion(glacierVectors, regionGeometry, regionId, year);
+      
+      // Añadir estadísticas a la colección
+      statsCollection = statsCollection.merge(ee.FeatureCollection([stats]));
+    });
+    
+    print('Procesado año: ' + year);
+  } catch (e) {
+    print('Error al procesar año ' + year + ': ' + e);
+  }
+}
+
+// Ordenar y mostrar las estadísticas
+var sortedStats = statsCollection.sort('year');
+// print('Estadísticas de área de glaciares por región y año (km²)', sortedStats);
+
+// Exportar los resultados a CSV
+Export.table.toDrive({
+  folder: 'ESTADÍSTICA-REGIONES-GLACIARES-2025',
+  collection: sortedStats,
+  description: 'Glaciares_Area_Por_Region_km2',
+  fileFormat: 'CSV'
+});
+
+
