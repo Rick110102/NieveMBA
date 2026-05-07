@@ -1,0 +1,116 @@
+// ============================================================
+//  REGIÓN UNIFICADA - GLACIARES PERÚ
+//  Une las 8 regiones en una sola geometría de trabajo
+// ============================================================
+
+var AssetRegions = ee.FeatureCollection(
+  'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/clasificacion-regiones-glacier-5'
+);
+
+var glacierRegionIds = [1005, 1006, 1007, 1008, 1009, 1010, 1011, 1013];
+
+// Filtramos solo las regiones de interés y las disolvemos en UNA sola geometría
+var REGION = AssetRegions
+  .filter(ee.Filter.inList('id_regionC', glacierRegionIds))
+  .union()          // fusiona todos los polígonos en uno solo
+  .geometry();      // extraemos la geometría pura
+
+print('Región unificada:', REGION);
+Map.addLayer(REGION, { color: 'orange' }, 'Región glaciar unificada');
+Map.centerObject(REGION, 7);
+
+// ============================================================
+//  EXPORTAR GLACIARES C4 - RASTER + SHAPEFILE
+//  Años: 1985 – 2025  →  Google Drive
+// ============================================================
+
+var PATH_C4       = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-';
+var SCALE         = 30;
+var CRS           = 'EPSG:4326';
+var FOLDER_RASTER = 'RASTER 2025 GLACIAR';
+var FOLDER_SHP    = 'SHAPEFILE 2025 GLACIAR - FINAL';
+
+var YEARS = [];
+for (var y = 1985; y <= 2025; y++) { YEARS.push(y); }
+
+// ============================================================
+// FUNCIÓN: exportar UN año como Raster + Shapefile
+// ============================================================
+function exportYear(year) {
+
+  var glacierMask = ee.Image(PATH_C4 + year + '-1')
+    .gt(0)
+    .selfMask()
+    .rename('glacier')
+    .clip(REGION);   // ← recortamos a nuestra región unificada
+
+  // // ── 1. RASTER ───────────────────────────────────────────
+  // Export.image.toDrive({
+  //   image:          glacierMask,
+  //   description:    'RASTER_glacier_C4_' + year,
+  //   folder:         FOLDER_RASTER,
+  //   fileNamePrefix: 'glacier_C4_' + year,
+  //   region:         REGION,
+  //   scale:          SCALE,
+  //   crs:            CRS,
+  //   maxPixels:      1e13,
+  //   fileFormat:     'GeoTIFF'
+  // });
+
+  // ── 2. SHAPEFILE ─────────────────────────────────────────
+  var vectors = glacierMask.reduceToVectors({
+    reducer:        ee.Reducer.countEvery(),
+    geometry:       REGION,
+    scale:          SCALE,
+    geometryType:   'polygon',
+    eightConnected: false,
+    labelProperty:  'glacier',
+    crs:            CRS,
+    maxPixels:      1e13,
+    bestEffort:     true
+  }).map(function(f) {
+    return f.set('year', year).set('collection', 'C4');
+  });
+
+  Export.table.toDrive({
+    collection:     vectors,
+    description:    'SHP_glacier_C4_' + year,
+    folder:         FOLDER_SHP,
+    fileNamePrefix: 'glacier_C4_' + year,
+    fileFormat:     'SHP'
+  });
+}
+
+// ============================================================
+// BUCLE PRINCIPAL
+// ============================================================
+YEARS.forEach(function(year) {
+  exportYear(year);
+});
+
+
+
+// print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+// print('Tareas generadas:', YEARS.length * 2);
+// print('Raster    → ' + FOLDER_RASTER);
+// print('Shapefile → ' + FOLDER_SHP);
+// print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+// var AssetRegions = ee.FeatureCollection(
+//   'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/clasificacion-regiones-glacier-5'
+// );
+
+// var glacierRegionIds = [1005, 1006, 1007, 1008, 1009, 1010, 1011, 1013];
+
+// // Filtrar solo las regiones glaciares
+// var glacierRegions = AssetRegions.filter(
+//   ee.Filter.inList('id_regionC', glacierRegionIds)  // ajusta 'region_id' al nombre real del campo
+// );
+
+// Export.table.toDrive({
+//   collection:     glacierRegions,
+//   description:    'SHP_Regiones_C4',
+//   folder:         'sad',            // ← string entre comillas
+//   fileNamePrefix: 'glacier_regiones',
+//   fileFormat:     'SHP'
+// });
