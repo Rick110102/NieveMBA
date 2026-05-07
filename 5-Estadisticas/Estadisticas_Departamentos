@@ -71,7 +71,7 @@ for (var year = startYear; year <= endYear; year++) {
   
   try {
     // Cargar la imagen raster de glaciares para este año
-    glacierImage = ee.Image('projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-' + year + '-1');
+    glacierImage = ee.Image('projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-' + year + '-2');
     
     // Para la coleccion anterior
     
@@ -123,9 +123,9 @@ var sortedStats = statsCollection.sort('year');
 
 // Exportar los resultados a CSV
 Export.table.toDrive({
-  folder: 'ESTADÍSTICA-XDEPARTAMENTO-GLACIARES-2025',
+  folder: 'ESTADÍSTICA-XDEPARTAMENTO-SNOW-2025',
   collection: sortedStats,
-  description: 'Glaciares_Area_Por_Departamento_km2',
+  description: 'Snow_Area_Por_Departamento_km2',
   fileFormat: 'CSV'
 });
 
