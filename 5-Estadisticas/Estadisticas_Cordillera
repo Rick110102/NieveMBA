@@ -10,7 +10,7 @@
 //    - Unidad: Ha (÷ 10,000)
 // ============================================================
 
-var startYear   = 1985;
+var startYear   = 2000;
 var endYear     = 2025;
 var CLASE_NIEVE = 34;
 
@@ -79,7 +79,7 @@ for (var year = startYear; year <= endYear; year++) {
 Export.table.toDrive({
   folder:      'ESTADÍSTICA-XCORDILLERA-SNOW-2025',
   collection:  statsCollection.sort('year'),
-  description: 'Snoe_Area_Por_Cordillera_km2',
+  description: 'Snoe_Area_Por_Cordillera_km2_V2',
   fileFormat:  'CSV',
   // selectors:   ['year', 'region_id', 'region_name', 'area_ha']
 });
