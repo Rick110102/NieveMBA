@@ -1,135 +1,127 @@
-// Definimos el rango de años para procesar
-var startYear = 2000;
-var endYear = 2025;
+// ============================================================
+//  Área NIEVE por Departamento - Collection 4 GLACIER-WET
+//  Clase nieve MapBiomas: 33
+//  Unidad de salida: HECTÁREAS (Ha)
+//  Departamentos: todos los 25 del Perú (feature_id 2–26)
+//  Años: 2000–2025
+// ============================================================
 
-// Cargar Assets de regiones glaciares
+var startYear   = 2000;
+var endYear     = 2025;
+var CLASE_NIEVE = 34;
+
 var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/shapes/Departamentos';
+var allRegions   = ee.FeatureCollection(AssetRegions);
 
-// Lista de IDs de regiones de glaciares a procesar
-var DepartamentoRegionIds = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26];
+// ----------------------------------------------------------
+// Todos los departamentos con nombre
+// ----------------------------------------------------------
+var DEPT_IDS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+                14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26];
 
-// Carga completa de la colección de assets
-var allRegions = ee.FeatureCollection(AssetRegions);
-print(allRegions)
-// Crear un array de colores para distinguir las regiones
-var colors = ['FF0000', '00FF00', '0000FF', 'FFFF00', 'FF00FF', '00FFFF', 'FFA500', '800080'];
+// var DEPT_NAMES = {
+//   2:  'Lima',
+//   3:  'Tacna',
+//   4:  'Moquegua',
+//   5:  'Arequipa',
+//   6:  'Puno',
+//   7:  'Apurímac',
+//   8:  'Ica',
+//   9:  'Ayacucho',
+//   10: 'Huancavelica',
+//   11: 'Callao',
+//   12: 'Cusco',
+//   13: 'Junín',
+//   14: 'Madre de Dios',
+//   15: 'Pasco',
+//   16: 'Huánuco',
+//   17: 'Áncash',
+//   18: 'Ucayali',
+//   19: 'La Libertad',
+//   20: 'Lambayeque',
+//   21: 'San Martín',
+//   22: 'Cajamarca',
+//   23: 'Piura',
+//   24: 'Tumbes',
+//   25: 'Amazonas',
+//   26: 'Loreto'
+// };
 
-// Inicializar colección para almacenar las estadísticas
+// ----------------------------------------------------------
+// Función: área nieve en Ha por región y año
+// ----------------------------------------------------------
+var calcNieveHa = function(snowImage, regionGeometry, regionId, year) {
+
+  var mask = snowImage.eq(CLASE_NIEVE);
+
+  var areaHa = mask
+    .multiply(ee.Image.pixelArea())
+    .divide(10000)
+    .rename('area_ha');
+
+  var result = areaHa.reduceRegion({
+    reducer:    ee.Reducer.sum(),
+    geometry:   regionGeometry,
+    scale:      30,
+    maxPixels:  1e13,
+    bestEffort: true
+  });
+
+  // Redondear a 2 decimales
+  var areaFinal = ee.Number(result.get('area_ha'))
+                    .multiply(100).round().divide(100);
+
+  return ee.Feature(null, {
+    'year':        year,
+    'region_id':   regionId,
+    // 'region_name': DEPT_NAMES[regionId] || ('Departamento ' + regionId),
+    'area_ha':     areaFinal
+  });
+};
+
+// ----------------------------------------------------------
+// Loop principal: años × departamentos
+// ----------------------------------------------------------
 var statsCollection = ee.FeatureCollection([]);
 
-// Función para vectorizar una imagen raster de glaciares
-var vectorizeGlacier = function(image) {
-  // Asegurar que los valores sean 1 para glaciares
-  var binaryImage = image.eq(1);
-  
-  // Vectorizar la imagen binaria
-  var vectors = binaryImage.reduceToVectors({
-    geometryType: 'polygon',
-    scale: 30,
-    eightConnected: true,
-    maxPixels: 1e10,
-    geometry: image.geometry()
-  });
-  
-  // Añadir área en km² a cada polígono
-  vectors = vectors.map(function(feature) {
-    var area = feature.geometry().area(0.5).divide(1000000); // Convertir a km²
-    return feature.set('area_km2', area);
-  });
-  
-  return vectors;
-};
-
-// Función para calcular área por región y año
-var calculateAreaByRegion = function(glacierVectors, regionGeometry, regionId, year) {
-  // Recortar vectores de glaciares por la región
-  var regionGlaciers = glacierVectors.filterBounds(regionGeometry);
-  
-  // Sumar todas las áreas
-  var totalArea = ee.Number(regionGlaciers.aggregate_sum('area_km2'))
-                  .multiply(100000000).round().divide(100000000); // Redondear a 2 decimales
-  
-  // Crear feature con estadísticas
-  var feature = ee.Feature(null, {
-    'region_id': regionId,
-    'year': year,
-    'area_km2': totalArea,
-    'region_name': 'Región Glaciar ' + regionId
-  });
-  
-  return feature;
-};
-
-// Crear una lista para almacenar tareas de procesamiento
-var tasks = [];
-
-// Procesar cada año primero (vectorizar una sola vez)
 for (var year = startYear; year <= endYear; year++) {
-  // Intentar cargar los datos para este año
-  var glacierImage;
-  
-  try {
-    // Cargar la imagen raster de glaciares para este año
-    glacierImage = ee.Image('projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-' + year + '-2');
-    
-    // Para la coleccion anterior
-    
-    // glacierImage = ee.Image('projects/mapbiomas-raisg/TRANSVERSALES/PERU/COLECCION5/GLACIAR/INTEGRACION/glaciar5/PERU-'+ year+ '-1')
-    // Vectorizar la imagen de glaciares
-    var glacierVectors = vectorizeGlacier(glacierImage);
-    
-    // Añadir vectores al mapa para años seleccionados (opcional)
-    if (year % 5 === 0) {
-      Map.addLayer(
-        glacierVectors, 
-        {color: 'red'}, 
-        'Vectores Glaciares ' + year, 
-        false
-      );
-    }
-    
-    // Procesar cada región para este año
-    DepartamentoRegionIds.forEach(function(regionId, index) {
-      var singleRegion = allRegions.filter(ee.Filter.eq('feature_id', regionId));
-      var regionGeometry = singleRegion.geometry();
-      
-      // Añadir región al mapa (solo la primera vez)
-      if (year === startYear) {
-        Map.addLayer(
-          singleRegion, 
-          {color: colors[index]}, 
-          'Región Glaciar ' + regionId,
-          false
-        );
-      }
-      
-      // Calcular estadísticas para esta región y año
-      var stats = calculateAreaByRegion(glacierVectors, regionGeometry, regionId, year);
-      
-      // Añadir estadísticas a la colección
-      statsCollection = statsCollection.merge(ee.FeatureCollection([stats]));
-    });
-    
-    print('Procesado año: ' + year);
-  } catch (e) {
-    print('Error al procesar año ' + year + ': ' + e);
-  }
+
+  var snowImage = ee.Image(
+    'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/' +
+    'integration/PERU-SNOW-' + year + '-2'
+  );
+
+  DEPT_IDS.forEach(function(regionId) {
+    var region     = allRegions.filter(ee.Filter.eq('feature_id', regionId));
+    var regionGeom = region.geometry();
+    var stats      = calcNieveHa(snowImage, regionGeom, regionId, year);
+
+    statsCollection = statsCollection.merge(ee.FeatureCollection([stats]));
+  });
 }
 
-// Ordenar y mostrar las estadísticas
-var sortedStats = statsCollection.sort('year');
-// print('Estadísticas de área de glaciares por región y año (km²)', sortedStats);
-
-// Exportar los resultados a CSV
+// ----------------------------------------------------------
+// Export a Drive
+// ----------------------------------------------------------
 Export.table.toDrive({
-  folder: 'ESTADÍSTICA-XDEPARTAMENTO-SNOW-2025',
-  collection: sortedStats,
-  description: 'Snow_Area_Por_Departamento_km2',
-  fileFormat: 'CSV'
+  folder:      'ESTADÍSTICA-XDEPARTAMENTO-SNOW-2025',
+  collection:  statsCollection.sort('year'),
+  description: 'Nieve_Area_Por_Departamento_Ha_V2',
+  fileFormat:  'CSV',
+  // selectors:   ['year', 'region_id', 'region_name', 'area_ha']
 });
 
+// // ----------------------------------------------------------
+// // Verificación rápida en consola: Lima 2024
+// // ----------------------------------------------------------
+// print('── Verificación Lima 2024 (nieve) ──');
+// print('Área nieve Lima 2024 (Ha):',
+//   calcNieveHa(
+//     ee.Image('projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-2024-2'),
+//     allRegions.filter(ee.Filter.eq('feature_id', 2)).geometry(),
+//     2, 2024
+//   ).get('area_ha')
+// );
 
-// var dptos = ee.FeatureCollection('projects/ee-mapbiomasaguaperu/assets/Departamentos')
-// Map.addLayer(dptos )
-// print(dptos)
+// Map.setCenter(-77.5, -9.3, 7);
+// Map.setOptions('HYBRID');
