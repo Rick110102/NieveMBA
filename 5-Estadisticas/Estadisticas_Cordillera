@@ -1,178 +1,100 @@
-// Definimos el rango de años para procesar
-var startYear = 1985;
-var endYear = 2025;
+// ============================================================
+//  Área NIEVE por Cordillera - Collection 4 GLACIER-WET
+//  Clase nieve MapBiomas: 33
+//  Unidad de salida: HECTÁREAS (Ha)
+//  Cordilleras: objectid 1–20
+//  Años: 1985–2025
+//  Correcciones:
+//    - Clase nieve = 33 (no 1)
+//    - Método: pixelArea() sobre máscara raster
+//    - Unidad: Ha (÷ 10,000)
+// ============================================================
 
-// Cargar Assets de regiones glaciares
+var startYear   = 1985;
+var endYear     = 2025;
+var CLASE_NIEVE = 34;
+
 var AssetRegions = 'projects/ee-jromualdoibc/assets/limite_cordilleras';
 
-// Lista de IDs de regiones de glaciares a procesar
 var CordilleraRegionIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                            11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+                           11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
-// Carga completa de la colección de assets
 var allRegions = ee.FeatureCollection(AssetRegions);
 
-// Crear un array de colores para distinguir las regiones
-var colors = ['FF0000', '00FF00', '0000FF', 'FFFF00', 'FF00FF', '00FFFF', 'FFA500', '800080'];
+// ----------------------------------------------------------
+// Función: área nieve en Ha por cordillera y año
+// ----------------------------------------------------------
+var calcNieveHa = function(snowImage, regionGeometry, regionId, year) {
 
-// Inicializar colección para almacenar las estadísticas
+  var mask = snowImage.eq(CLASE_NIEVE);
+
+  var areaHa = mask
+    .multiply(ee.Image.pixelArea())
+    .divide(10000)
+    .rename('area_ha');
+
+  var result = areaHa.reduceRegion({
+    reducer:    ee.Reducer.sum(),
+    geometry:   regionGeometry,
+    scale:      30,
+    maxPixels:  1e13,
+    bestEffort: true
+  });
+
+  var areaFinal = ee.Number(result.get('area_ha'))
+                    .multiply(100).round().divide(100);
+
+  return ee.Feature(null, {
+    'year':        year,
+    'region_id':   regionId,
+    'region_name': 'Cordillera ' + regionId,
+    'area_ha':     areaFinal
+  });
+};
+
+// ----------------------------------------------------------
+// Loop principal: años × cordilleras
+// ----------------------------------------------------------
 var statsCollection = ee.FeatureCollection([]);
 
-// Función para vectorizar una imagen raster de glaciares
-var vectorizeGlacier = function(image) {
-  // Asegurar que los valores sean 1 para glaciares
-  var binaryImage = image.eq(1);
-  
-  // Vectorizar la imagen binaria
-  var vectors = binaryImage.reduceToVectors({
-    geometryType: 'polygon',
-    scale: 30,
-    eightConnected: true,
-    maxPixels: 1e10,
-    geometry: image.geometry()
-  });
-  
-  // Añadir área en km² a cada polígono
-  vectors = vectors.map(function(feature) {
-    var area = feature.geometry().area(0.5).divide(1000000); // Convertir a km²
-    return feature.set('area_km2', area);
-  });
-  
-  return vectors;
-};
-
-// Función para calcular área por región y año
-var calculateAreaByRegion = function(glacierVectors, regionGeometry, regionId, year) {
-  // Recortar vectores de glaciares por la región
-  var regionGlaciers = glacierVectors.filterBounds(regionGeometry);
-  
-  // Sumar todas las áreas
-  var totalArea = ee.Number(regionGlaciers.aggregate_sum('area_km2'))
-                   .multiply(10000000000).round().divide(10000000000); // Redondear a 2 decimales
-  
-  // Crear feature con estadísticas
-  var feature = ee.Feature(null, {
-    'region_id': regionId,
-    'year': year,
-    'area_km2': totalArea,
-    'region_name': 'Región Glaciar ' + regionId
-  });
-  
-  return feature;
-};
-
-// Crear una lista para almacenar tareas de procesamiento
-var tasks = [];
-
-// Procesar cada año primero (vectorizar una sola vez)
 for (var year = startYear; year <= endYear; year++) {
-  // Intentar cargar los datos para este año
-  var glacierImage;
-  
-  try {
-    // Cargar la imagen raster de glaciares para este año
-    glacierImage = ee.Image('projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/integration-v2/PERU-' + year + '-1');
-    
-    // Para la coleccion anterior
-    
-    // glacierImage = ee.Image('projects/mapbiomas-raisg/TRANSVERSALES/PERU/COLECCION5/GLACIAR/INTEGRACION/glaciar5/PERU-'+ year+ '-1')
-    // Vectorizar la imagen de glaciares
-    var glacierVectors = vectorizeGlacier(glacierImage);
-    
-    // Añadir vectores al mapa para años seleccionados (opcional)
-    if (year % 1 === 0) {
-      Map.addLayer(
-        glacierVectors, 
-        {color: 'cyan'}, 
-        'Vectores Glaciares ' + year, 
-        false
-      );
-    }
-    
-    // Procesar cada región para este año
-    CordilleraRegionIds.forEach(function(regionId, index) {
-      var singleRegion = allRegions.filter(ee.Filter.eq('objectid', regionId));
-      var regionGeometry = singleRegion.geometry();
-      
-      // Añadir región al mapa (solo la primera vez)
-      if (year === startYear) {
-        Map.addLayer(
-          singleRegion, 
-          {color: colors[index]}, 
-          'Región Glaciar ' + regionId,
-          false
-        );
-      }
-      
-      // Calcular estadísticas para esta región y año
-      var stats = calculateAreaByRegion(glacierVectors, regionGeometry, regionId, year);
-      
-      // Añadir estadísticas a la colección
-      statsCollection = statsCollection.merge(ee.FeatureCollection([stats]));
-    });
-    
-    print('Procesado año: ' + year);
-  } catch (e) {
-    print('Error al procesar año ' + year + ': ' + e);
-  }
+
+  var snowImage = ee.Image(
+    'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/' +
+    'integration/PERU-SNOW-' + year + '-2'
+  );
+
+  CordilleraRegionIds.forEach(function(regionId) {
+    var region     = allRegions.filter(ee.Filter.eq('objectid', regionId));
+    var regionGeom = region.geometry();
+    var stats      = calcNieveHa(snowImage, regionGeom, regionId, year);
+
+    statsCollection = statsCollection.merge(ee.FeatureCollection([stats]));
+  });
 }
 
-// Ordenar y mostrar las estadísticas
-var sortedStats = statsCollection.sort('year');
-// print('Estadísticas de área de glaciares por región y año (km²)', sortedStats);
-
-// Exportar los resultados a CSV
+// ----------------------------------------------------------
+// Export a Drive
+// ----------------------------------------------------------
 Export.table.toDrive({
-  folder: 'ESTADÍSTICA-XCORDILLERA-GLACIARES-2025',
-  collection: sortedStats,
-  description: 'Glaciares_Area_Por_Cordillera_km2',
-  fileFormat: 'CSV'
+  folder:      'ESTADÍSTICA-XCORDILLERA-SNOW-2025',
+  collection:  statsCollection.sort('year'),
+  description: 'Snoe_Area_Por_Cordillera_km2',
+  fileFormat:  'CSV',
+  // selectors:   ['year', 'region_id', 'region_name', 'area_ha']
 });
 
+// ----------------------------------------------------------
+// // Verificación rápida en consola: Cordillera 1, año 2024
+// // ----------------------------------------------------------
+// print('── Verificación Cordillera 1, 2024 (nieve) ──');
+// print('Área nieve Cordillera 1 - 2024 (Ha):',
+//   calcNieveHa(
+//     ee.Image('projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/integration/PERU-SNOW-2024-2'),
+//     allRegions.filter(ee.Filter.eq('objectid', 1)).geometry(),
+//     1, 2024
+//   ).get('area_ha')
+// );
 
-
-// // Crear gráficos de área por región a lo largo del tiempo
-// for (var i = 0; i < glacierRegionIds.length; i++) {
-//   var regionId = glacierRegionIds[i];
-//   var regionStats = sortedStats.filter(ee.Filter.eq('region_id', regionId));
-  
-//   var chart = ui.Chart.feature.byFeature({
-//     features: regionStats,
-//     xProperty: 'year',
-//     yProperties: ['area_km2']
-//   }).setChartType('LineChart')
-//     .setOptions({
-//       title: 'Área de glaciares en Región ' + regionId + ' (1985-2024)',
-//       hAxis: {title: 'Año'},
-//       vAxis: {title: 'Área (km²)'},
-//       lineWidth: 2,
-//       colors: [colors[i]]
-//     });
-  
-//   print(chart);
-// }
-
-// // También crear un gráfico que muestre todas las regiones juntas
-// var combinedChart = ui.Chart.feature.byFeature({
-//   features: sortedStats,
-//   xProperty: 'year',
-//   yProperties: ['area_km2']
-// }).setChartType('LineChart')
-//   .setOptions({
-//     title: 'Área de glaciares por región (1985-2024)',
-//     hAxis: {title: 'Año'},
-//     vAxis: {title: 'Área (km²)'},
-//     lineWidth: 1.5,
-//     series: {
-//       0: {color: colors[0]},
-//       1: {color: colors[1]},
-//       2: {color: colors[2]},
-//       3: {color: colors[3]},
-//       4: {color: colors[4]},
-//       5: {color: colors[5]},
-//       6: {color: colors[6]},
-//       7: {color: colors[7]}
-//     }
-//   });
-
-// print(combinedChart);
+// Map.setCenter(-77.5, -9.3, 7);
+// Map.setOptions('HYBRID');
