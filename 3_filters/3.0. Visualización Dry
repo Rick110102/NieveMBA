@@ -1,12 +1,12 @@
-var regionGlacier = 28;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1 - 48
-var versionInput = 7;    // ----> Variable
-var versionInput35 = 9;
+var regionGlacier = 1005;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1005 - 1013
+var versionInput = 15;    // ----> Variable
+var versionInput35 = 15;
 
 var YearsSensors =  [
-              // [1985,  'lx',      75,    2114,      2497], 
-              // [1986,  'lx',      75,    2114,      2497], 
-              // [1987,  'lx',      75,    2114,      2497], 
-              // [1988,  'lx',      75,     2114,      2497], 
+              [1985,  'lx',      75,    2114,      2497], 
+              [1986,  'lx',      75,    2114,      2497], 
+              [1987,  'lx',      75,    2114,      2497], 
+              [1988,  'lx',      75,     2114,      2497], 
               // [1989,  'lx',      75,     2114,      2497], 
               // [1990,  'lx',      75,     2114,      2497], 
               // [1991,  'lx',      75,     2114,      2497], 
@@ -18,31 +18,31 @@ var YearsSensors =  [
               // [1997,  'lx',      75,     2114,      2497], 
               // [1998,  'lx',      75,     2114,      2497], 
               // [1999,  'lx',      75,     2114,      2497], 
-              [2000,  'lx',      75,     2114,      2497], 
-              [2001,  'lx',      75,     2114,      2497], 
-              [2002,  'lx',      75,     2114,      2497], 
-              [2003,  'lx',      75,     2114,      2497], 
-              [2004,  'lx',      75,     2114,      2497], 
-              [2005,  'lx',      75,     2114,      2497], 
-              [2006,  'lx',      75,     2114,      2497], 
-              [2007,  'lx',      75,     2114,      2497], 
-              [2008,  'lx',      75,     2114,      2497], 
-              [2009,  'lx',      75,     2114,      2497], 
-              [2010,  'lx',      75,     2114,      2497], 
-              [2011,  'lx',      75,     2114,      2497], 
-              [2012,  'l7',      75,     2114,      2497], 
-              [2013,  'l7',      75,     2114,      2497], 
-              [2014,  'l7',      75,     2114,      2497], 
-              [2015,  'l7',      75,     2114,      2497], 
-              [2016,  'l7',      75,     2114,      2497], 
-              [2017,  'l7',      75,     2114,      2497], 
-              [2018,  'l7',      75,     2114,      2497], 
-              [2019,  'l7',      75,     2114,      2497], 
-              [2020,  'l7',      75,     2114,      2497],
-              [2021,  'l7',      75,     2114,      2497],
-              [2022,  'l7',      75,     2114,      2497],
-              [2023,  'l7',      75,     2114,      2497],
-              [2024,  'l7',      75,     2114,      2497],  // Vacío, region 47
+              // [2000,  'lx',      75,     2114,      2497], 
+              // [2001,  'lx',      75,     2114,      2497], 
+              // [2002,  'lx',      75,     2114,      2497], 
+              // [2003,  'lx',      75,     2114,      2497], 
+              // [2004,  'lx',      75,     2114,      2497], 
+              // [2005,  'lx',      75,     2114,      2497], 
+              // [2006,  'lx',      75,     2114,      2497], 
+              // [2007,  'lx',      75,     2114,      2497], 
+              // [2008,  'lx',      75,     2114,      2497], 
+              // [2009,  'lx',      75,     2114,      2497], 
+              // [2010,  'lx',      75,     2114,      2497], 
+              // [2011,  'lx',      75,     2114,      2497], 
+              // [2012,  'l7',      75,     2114,      2497], 
+              // [2013,  'l7',      75,     2114,      2497], 
+              // [2014,  'l7',      75,     2114,      2497], 
+              // [2015,  'l7',      75,     2114,      2497], 
+              // [2016,  'l7',      75,     2114,      2497], 
+              // [2017,  'l7',      75,     2114,      2497], 
+              // [2018,  'l7',      75,     2114,      2497], 
+              // [2019,  'l7',      75,     2114,      2497], 
+              // [2020,  'l7',      75,     2114,      2497],
+              // [2021,  'l7',      75,     2114,      2497],
+              // [2022,  'l7',      75,     2114,      2497],
+              // [2023,  'l7',      75,     2114,      2497],
+              // [2024,  'l7',      75,     2114,      2497],  // Vacío, region 47
               // [2013,  'l8',      75,     1730,      2304], 
               // [2014,  'l8',      75,     1730,      2304], 
               // [2015,  'l8',      75,     1730,      2304], 
@@ -54,11 +54,11 @@ var YearsSensors =  [
               // [2021,  'l8',      75,     1730,      2304],
               // [2022,  'l8',      75,     1730,      2304],
               // [2023,  'l8',      75,     1730,      2304],
-              [2024,  'l8',      75,     1730,      2304],
-              [2025,  'l8',      75,     1730,      2304],
+              // [2024,  'l8',      75,     1730,      2304],
+              // [2025,  'l8',      75,     1730,      2304],
               // [2022,  'l9',      75,     1730,      2304],
               // [2023,  'l9',      75,     1730,      2304],
-              [2024,  'l9',      75,     1730,      2304],
+              // [2024,  'l9',      75,     1730,      2304],
               // [2025,  'l9',      75,     1730,      2304],
             ]  
 
@@ -72,15 +72,16 @@ var YearsSensors =  [
 // // projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/PERU-1-4, dirección a trabajar
 
 // ── ASSETS & MÓDULOS ────────────────────────────────────────────
-var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
-var Class        = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
+var AssetRegions = 'projects/mapbiomas-peru/assets/LAND-COVER/AUXILIARY-DATA/VECTOR/clasificacion-regiones-glacier-5';
+var Class        = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER/classification-ft-v2';
+var C3 = "projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION3/GLACIER/classification-ft"
 
-var getImages    = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/GetImages.js');
-var smafractions = require('users/mapbiomasaguaperu/GlaciaresWet2026:New_Collection/Sma-fraction.js');
+var getImages    = require('users/mapbiomasperupr/Ricardo:New_Collection/GetImages.js');
+var smafractions = require('users/mapbiomasperupr/Ricardo:New_Collection/Sma-fraction.js');
 
 // ── VISUALIZACIONES ─────────────────────────────────────────────
 var vis_mosaic = {
-  bands: 'swir1_median_wet,nir_median_wet,red_median_wet',
+  bands: 'swir1_median_dry,nir_median_dry,red_median_dry',
   min: 300, max: 5000
 };
 
@@ -91,10 +92,10 @@ var vis_class = {
 
 // ── DATOS BASE ───────────────────────────────────────────────────
 var region = ee.FeatureCollection(AssetRegions)
-  .filter(ee.Filter.eq('ord', regionGlacier));
+  .filter(ee.Filter.eq('id_regionC', regionGlacier));
 
 var regionRaster = region.reduceToImage({
-  properties: ['ord'],
+  properties: ['id_regionC'],
   reducer: ee.Reducer.first()
 }).gt(0).selfMask();
 
@@ -102,7 +103,7 @@ var classImg = ee.ImageCollection(Class)
   .filter(ee.Filter.eq('code_region', regionGlacier))
   .filter(ee.Filter.eq('version', versionInput));
   
-var classImg35 = ee.ImageCollection(Class)
+var classImg35 = ee.ImageCollection(C3)
   .filter(ee.Filter.eq('code_region', regionGlacier))
   .filter(ee.Filter.eq('version', versionInput35));
   
@@ -145,13 +146,13 @@ YearsSensors.forEach(function(yearsensor, i) {
   // Crear layers con referencia guardada
   var mosaicLayer = ui.Map.Layer(
     Mosaic, vis_mosaic,
-    'Mosaico WET ' + year + ' (' + sensor.toUpperCase() + ')',
+    'Mosaico Dry ' + year + ' (' + sensor.toUpperCase() + ')',
     true, 1.0
   );
 
   var classLayer = ui.Map.Layer(
     classYear, vis_class,
-    'Estimación Snow ' + year,
+    'Estimación Glaciar ' + year,
     true, 1.0
   );
 
@@ -339,7 +340,7 @@ var panelClass = ui.Panel({
 // ── LAYOUT DINÁMICO ───────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════
 var n    = maps.length;
-var cols = 5;
+var cols = 2;
 var rows = [];
 
 var panelStyle = {
