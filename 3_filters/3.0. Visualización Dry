@@ -1,12 +1,12 @@
-var regionGlacier = 1005;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1005 - 1013
+var regionGlacier = 1009;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1005 - 1013
 var versionInput = 15;    // ----> Variable
 var versionInput35 = 15;
 
 var YearsSensors =  [
               [1985,  'lx',      75,    2114,      2497], 
-              [1986,  'lx',      75,    2114,      2497], 
-              [1987,  'lx',      75,    2114,      2497], 
-              [1988,  'lx',      75,     2114,      2497], 
+              // [1986,  'lx',      75,    2114,      2497], 
+              // [1987,  'lx',      75,    2114,      2497], 
+              // [1988,  'lx',      75,     2114,      2497], 
               // [1989,  'lx',      75,     2114,      2497], 
               // [1990,  'lx',      75,     2114,      2497], 
               // [1991,  'lx',      75,     2114,      2497], 
@@ -92,7 +92,10 @@ var vis_class = {
 
 // ── DATOS BASE ───────────────────────────────────────────────────
 var region = ee.FeatureCollection(AssetRegions)
-  .filter(ee.Filter.eq('id_regionC', regionGlacier));
+  .filter(ee.Filter.eq('id_regionC', regionGlacier))
+  .map(function(feat){
+    return feat.buffer(50000);
+  });
 
 var regionRaster = region.reduceToImage({
   properties: ['id_regionC'],
@@ -373,3 +376,369 @@ ui.root.add(mainPanel);
 // bottom-right → último mapa  (esquina inferior derecha del grid)
 maps[0].add(panelMosaico);
 maps[n - 1].add(panelClass);
+
+
+
+
+// // ══════════════════════════════════════════════════════════════════
+// // DIAGNÓSTICO: IMÁGENES USADAS EN EL MOSAICO DRY 1985
+// // Extrae fechas, IDs y metadatos de las imágenes que construyeron
+// // el mosaico de temporada seca para el año y región seleccionados
+// // ══════════════════════════════════════════════════════════════════
+
+// // ── CONFIGURACIÓN DEL AÑO A INSPECCIONAR ─────────────────────────
+// var anoInspeccionar = 1985;   // ← Cambiar al año que quieras auditar
+// var sensorInspeccionar = 'lx'; // ← Debe coincidir con YearsSensors
+// var cloudInspeccionar  = 75;
+
+// // ── OBTENER COLECCIÓN DEL AÑO ─────────────────────────────────────
+// var paramInsp = {
+//   't0':           anoInspeccionar + '-01-01',
+//   't1':           anoInspeccionar + '-12-31',
+//   'satellite':    sensorInspeccionar,
+//   'cloud_cover':  cloudInspeccionar,
+//   'pais':         'PERU',
+//   'regionMosaic': regionGlacier,
+//   'shadowSum':    3500
+// };
+
+// // getImages devuelve [mosaic, collection]
+// var resultInsp  = getImages.getImages(paramInsp, [], region);
+// var mosaicInsp  = resultInsp[0];
+// var collInsp    = resultInsp[1]; // ← colección de imágenes individuales
+
+// print('══════════════════════════════════════════════════');
+// print('AUDITORÍA DE MOSAICO DRY');
+// print('Año:', anoInspeccionar,
+//       '· Sensor:', sensorInspeccionar,
+//       '· Región:', regionGlacier);
+// print('══════════════════════════════════════════════════');
+// print('Total imágenes en la colección filtrada:', collInsp.size());
+
+// // ── CALCULAR NDSI MEDIO POR IMAGEN SOBRE LA REGIÓN ───────────────
+// var metadatos = collInsp.map(function(img) {
+
+//   // Usar la banda ndsi que ya calculó GetImages.js
+//   // Si no existe, calcularla desde green y swir1 (sin sufijo _median)
+//   var ndsiImg = ee.Algorithms.If(
+//     img.bandNames().contains('ndsi'),
+//     img.select('ndsi'),
+//     img.normalizedDifference(['green','swir1'])
+//       .multiply(100).add(100).byte()
+//   );
+
+//   var ndsiMedio = ee.Image(ndsiImg).reduceRegion({
+//     reducer:    ee.Reducer.mean(),
+//     geometry:   region.geometry(),
+//     scale:      500,
+//     maxPixels:  1e9,
+//     bestEffort: true,
+//   }).values().get(0);  // get(0) porque el nombre de banda puede variar
+
+//   var mes    = img.date().get('month');
+//   var esSeco = mes.gte(6).and(mes.lte(9));
+
+//   return ee.Feature(null, {
+//     'id_imagen':   img.id(),
+//     'fecha':       img.date().format('YYYY-MM-dd'),
+//     'mes':         mes,
+//     'dia_del_ano': img.date().getRelative('day','year'),
+//     'ndsi_medio':  ndsiMedio,
+//     'nubes_pct':   img.get('CLOUD_COVER'),
+//     'satelite':    img.get('SPACECRAFT_ID'),
+//     'path':        img.get('WRS_PATH'),
+//     'row':         img.get('WRS_ROW'),
+//     'temporada':   ee.Algorithms.If(esSeco,
+//                     'SECO (Jun-Sep)', 'HUMEDO (Oct-May)'),
+//   });
+// }).filter(ee.Filter.notNull(['ndsi_medio']));
+
+// var metaOrdenado = metadatos.sort('ndsi_medio');
+
+// // ── CALCULAR PERCENTIL 25 COMO ESCALAR ───────────────────────────
+// var todosNDSI = metaOrdenado.aggregate_array('ndsi_medio');
+
+// var p25val = ee.Array(todosNDSI)
+//   .reduce(ee.Reducer.percentile([25]),[0]).get([0]);
+// var p75val = ee.Array(todosNDSI)
+//   .reduce(ee.Reducer.percentile([75]),[0]).get([0]);
+// var p50val = ee.Array(todosNDSI)
+//   .reduce(ee.Reducer.percentile([50]),[0]).get([0]);
+
+// print('──────────────────────────────────────────────────');
+// print('Percentil 25 — umbral DRY:', p25val);
+// print('Percentil 50 — mediana:',    p50val);
+// print('Percentil 75 — umbral WET:', p75val);
+// print('──────────────────────────────────────────────────');
+
+// // ── AGREGAR ÍNDICE Y ZONA A CADA IMAGEN ──────────────────────────
+// var listaFeats = metaOrdenado.toList(metaOrdenado.size());
+// var nFeats     = metaOrdenado.size();
+// var indices    = ee.List.sequence(0, nFeats.subtract(1));
+
+// var metaConZona = ee.FeatureCollection(
+//   indices.map(function(idx) {
+//     var feat = ee.Feature(listaFeats.get(idx));
+//     var v    = feat.getNumber('ndsi_medio');
+//     return feat.set({
+//       'orden': ee.Number(idx).add(1),
+//       'zona':  ee.Algorithms.If(v.lte(p25val), 'DRY',
+//               ee.Algorithms.If(v.gte(p75val), 'WET', 'MEDIANA')),
+//     });
+//   })
+// );
+
+// // ── SEPARAR POR ZONA ──────────────────────────────────────────────
+// var imgsDRY    = metaConZona.filter(ee.Filter.eq('zona', 'DRY'));
+// var imgsWET    = metaConZona.filter(ee.Filter.eq('zona', 'WET'));
+// var imgsMedia  = metaConZona.filter(ee.Filter.eq('zona', 'MEDIANA'));
+
+// print('Imágenes que construyen mosaico DRY (P25):', imgsDRY.size());
+// print('Imágenes en zona mediana (P25-P75):',        imgsMedia.size());
+// print('Imágenes que construyen mosaico WET (P75):', imgsWET.size());
+
+// // ── DETALLE IMAGEN POR IMAGEN — DRY ──────────────────────────────
+// print('══════════════════════════════════════════════════');
+// print('IMÁGENES DEL MOSAICO DRY — AÑO ' + anoInspeccionar);
+// print('Fecha  |  Satélite  |  Path/Row  |  NDSI  |  Nubes%  |  Temporada  |  ID');
+// print('──────────────────────────────────────────────────');
+
+// imgsDRY.sort('ndsi_medio').evaluate(function(fc) {
+//   if (!fc || fc.features.length === 0) {
+//     print('⚠️  No se encontraron imágenes para el mosaico DRY.');
+//     return;
+//   }
+//   fc.features.forEach(function(f, i) {
+//     var p    = f.properties;
+//     var ndsi  = p.ndsi_medio  ? (Math.round(p.ndsi_medio  * 10) / 10) : 'N/A';
+//     var nubes = p.nubes_pct   ? (Math.round(p.nubes_pct   * 10) / 10) : 'N/A';
+//     print(
+//       '#' + (i+1) + '  ' + p.fecha +
+//       '  |  ' + p.satelite +
+//       '  |  P' + p.path + '/R' + p.row +
+//       '  |  NDSI=' + ndsi +
+//       '  |  Nubes=' + nubes + '%' +
+//       '  |  ' + p.temporada +
+//       '\n     ID: ' + p.id_imagen
+//     );
+//   });
+
+//   // Conteo por temporada
+//   var nSecos   = fc.features.filter(function(f) {
+//     return f.properties.temporada === 'SECO (Jun-Sep)';
+//   }).length;
+//   var nHumedos = fc.features.length - nSecos;
+
+//   print('──────────────────────────────────────────────────');
+//   print('Resumen DRY:');
+//   print('  De temporada SECA  (Jun-Sep):', nSecos);
+//   print('  De temporada HÚMEDA (Oct-May):', nHumedos);
+//   if (nSecos === 0) {
+//     print('  ❌ ALERTA: Ninguna imagen de temporada seca disponible.');
+//     print('     El mosaico DRY está construido 100% con imágenes húmedas.');
+//   } else if (nHumedos > nSecos) {
+//     print('  ⚠️  AVISO: Más imágenes húmedas que secas en el DRY.');
+//     print('     Revisar calidad del mosaico para este año y región.');
+//   } else {
+//     print('  ✅ Mosaico DRY construido principalmente con imágenes secas.');
+//   }
+//   print('══════════════════════════════════════════════════');
+// });
+
+// // ── DETALLE IMAGEN POR IMAGEN — WET ──────────────────────────────
+// print('══════════════════════════════════════════════════');
+// print('IMÁGENES DEL MOSAICO WET — AÑO ' + anoInspeccionar);
+// print('──────────────────────────────────────────────────');
+
+// imgsWET.sort('ndsi_medio').evaluate(function(fc) {
+//   if (!fc || fc.features.length === 0) {
+//     print('⚠️  No se encontraron imágenes para el mosaico WET.');
+//     return;
+//   }
+//   fc.features.forEach(function(f, i) {
+//     var p     = f.properties;
+//     var ndsi  = p.ndsi_medio ? (Math.round(p.ndsi_medio  * 10) / 10) : 'N/A';
+//     var nubes = p.nubes_pct  ? (Math.round(p.nubes_pct   * 10) / 10) : 'N/A';
+//     print(
+//       '#' + (i+1) + '  ' + p.fecha +
+//       '  |  ' + p.satelite +
+//       '  |  P' + p.path + '/R' + p.row +
+//       '  |  NDSI=' + ndsi +
+//       '  |  Nubes=' + nubes + '%' +
+//       '  |  ' + p.temporada +
+//       '\n     ID: ' + p.id_imagen
+//     );
+//   });
+//   print('══════════════════════════════════════════════════');
+// });
+
+// // ── GRÁFICO: TODAS LAS IMÁGENES CON ZONA ASIGNADA ────────────────
+// var chartAuditoria = ui.Chart.feature.groups({
+//   features:       metaConZona.sort('orden'),
+//   xProperty:      'fecha',
+//   yProperty:      'ndsi_medio',
+//   seriesProperty: 'zona',
+// })
+// .setChartType('ColumnChart')
+// .setOptions({
+//   title: 'Todas las imágenes — Región ' + regionGlacier +
+//         ' · ' + anoInspeccionar + '\n' +
+//         'Rojo=DRY · Gris=Mediana · Azul=WET',
+//   titleTextStyle: { fontSize:13, bold:true },
+//   hAxis: {
+//     title: 'Fecha de la imagen',
+//     titleTextStyle: { fontSize:10 },
+//     slantedText: true, slantedTextAngle: 45,
+//   },
+//   vAxis: {
+//     title: 'NDSI medio (escala 0-200)',
+//     titleTextStyle: { fontSize:10 },
+//     minValue: 90, maxValue: 200,
+//   },
+//   series: {
+//     0: { color:'#E74C3C', labelInLegend:'DRY (entra al mosaico seco)' },
+//     1: { color:'#AAAAAA', labelInLegend:'MEDIANA' },
+//     2: { color:'#2E86C1', labelInLegend:'WET (entra al mosaico húmedo)' },
+//   },
+//   legend: { position:'top', textStyle:{ fontSize:11 } },
+//   height: 360,
+//   bar: { groupWidth:'85%' },
+//   backgroundColor: { fill:'#fafafa' },
+//   chartArea: { width:'82%', height:'60%' },
+// });
+
+// print('GRÁFICO: NDSI por imagen con zona asignada');
+// print(chartAuditoria);
+
+// // ── CARGAR IMÁGENES DRY INDIVIDUALMENTE EN EL MAPA ───────────────
+// // Las carga apagadas en el primer mapa para inspección visual
+// // imgsDRY.sort('ndsi_medio').evaluate(function(fc) {
+// //   if (!fc || fc.features.length === 0) return;
+
+// //   // Paths completos por sensor
+// //   var pathsSensor = {
+// //     'LANDSAT_4': 'LANDSAT/LT04/C02/T1_L2/',
+// //     'LANDSAT_5': 'LANDSAT/LT05/C02/T1_L2/',
+// //     'LANDSAT_7': 'LANDSAT/LE07/C02/T1_L2/',
+// //     'LANDSAT_8': 'LANDSAT/LC08/C02/T1_L2/',
+// //     'LANDSAT_9': 'LANDSAT/LC09/C02/T1_L2/',
+// //   };
+
+// //   fc.features.forEach(function(f, i) {
+// //     var p    = f.properties;
+// //     var ndsi = p.ndsi_medio
+// //       ? (Math.round(p.ndsi_medio * 10) / 10) : '?';
+
+// //     // Reconstruir ID completo con el path de la colección
+// //     var colPath   = pathsSensor[p.satelite] || 'LANDSAT/LT05/C02/T1_L2/';
+// //     var idCompleto = colPath + p.id_imagen;
+
+// //     print('Cargando:', idCompleto);
+
+// //     var imgOriginal = ee.Image(idCompleto);
+
+// //     var bOrig = (p.satelite === 'LANDSAT_8' || p.satelite === 'LANDSAT_9')
+// //       ? ['SR_B2','SR_B3','SR_B4','SR_B5','SR_B6','SR_B7']
+// //       : ['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5','SR_B7'];
+
+// //     var imgVis = imgOriginal
+// //       .select(bOrig)
+// //       .multiply(0.0000275).add(-0.2).multiply(10000)
+// //       .rename(['blue','green','red','nir','swir1','swir2'])
+// //       .clip(region.geometry());
+
+// //     maps[0].addLayer(
+// //       imgVis,
+// //       { bands:['swir1','nir','red'], min:300, max:5000, gamma:1.1 },
+// //       '#' + (i+1) + ' DRY ' + p.fecha + ' NDSI=' + ndsi,
+// //       false
+// //     );
+// //   });
+
+// //   print('✅ Imágenes DRY cargadas. Actívalas en el panel de capas.');
+// // });
+
+
+// imgsDRY.sort('ndsi_medio').evaluate(function(fc) {
+//   if (!fc || fc.features.length === 0) {
+//     print('⚠️  No se encontraron imágenes para el mosaico DRY.');
+//     return;
+//   }
+
+//   var pathsSensor = {
+//     'LANDSAT_4': 'LANDSAT/LT04/C02/T1_L2/',
+//     'LANDSAT_5': 'LANDSAT/LT05/C02/T1_L2/',
+//     'LANDSAT_7': 'LANDSAT/LE07/C02/T1_L2/',
+//     'LANDSAT_8': 'LANDSAT/LC08/C02/T1_L2/',
+//     'LANDSAT_9': 'LANDSAT/LC09/C02/T1_L2/',
+//   };
+
+//   print('══════════════════════════════════════════════════');
+//   print('IMÁGENES DEL MOSAICO DRY — AÑO ' + anoInspeccionar);
+//   print('Fecha  |  Satélite  |  Path/Row  |  NDSI  |  Nubes%  |  Temporada');
+//   print('──────────────────────────────────────────────────');
+
+//   var nSecos   = 0;
+//   var nHumedos = 0;
+
+//   // ── Recorrer UNA sola vez: imprimir + cargar en mapa ─────────────
+//   fc.features.forEach(function(f, i) {
+//     var p     = f.properties;
+//     var ndsi  = p.ndsi_medio ? (Math.round(p.ndsi_medio  * 10) / 10) : 'N/A';
+//     var nubes = p.nubes_pct  ? (Math.round(p.nubes_pct   * 10) / 10) : 'N/A';
+
+//     // Contar temporadas
+//     if (p.temporada === 'SECO (Jun-Sep)')   nSecos++;
+//     else                                     nHumedos++;
+
+//     // ── Imprimir en consola ───────────────────────────────────────
+//     print(
+//       '#' + (i+1) + '  ' + p.fecha +
+//       '  |  ' + p.satelite +
+//       '  |  P' + p.path + '/R' + p.row +
+//       '  |  NDSI=' + ndsi +
+//       '  |  Nubes=' + nubes + '%' +
+//       '  |  ' + p.temporada +
+//       '\n     ID completo: ' +
+//         (pathsSensor[p.satelite] || 'LANDSAT/LT05/C02/T1_L2/') + p.id_imagen
+//     );
+
+//     // ── Cargar en mapa — mismo ID que se imprimió ─────────────────
+//     var colPath    = pathsSensor[p.satelite] || 'LANDSAT/LT05/C02/T1_L2/';
+//     var idCompleto = colPath + p.id_imagen;
+
+//     var bOrig = (p.satelite === 'LANDSAT_8' || p.satelite === 'LANDSAT_9')
+//       ? ['SR_B2','SR_B3','SR_B4','SR_B5','SR_B6','SR_B7']
+//       : ['SR_B1','SR_B2','SR_B3','SR_B4','SR_B5','SR_B7'];
+
+//     var imgVis = ee.Image(idCompleto)
+//       .select(bOrig)
+//       .multiply(0.0000275).add(-0.2).multiply(10000)
+//       .rename(['blue','green','red','nir','swir1','swir2'])
+//       .clip(region.geometry());
+
+//     maps[0].addLayer(
+//       imgVis,
+//       { bands:['swir1','nir','red'], min:300, max:5000, gamma:1.1 },
+//       '#' + (i+1) + ' DRY ' + p.fecha + ' | NDSI=' + ndsi + ' | ' + p.temporada,
+//       false
+//     );
+//   });
+
+//   // ── Semáforo de calidad ───────────────────────────────────────────
+//   print('──────────────────────────────────────────────────');
+//   print('Resumen DRY:');
+//   print('  De temporada SECA  (Jun-Sep):', nSecos);
+//   print('  De temporada HÚMEDA (Oct-May):', nHumedos);
+//   if (nSecos === 0) {
+//     print('  ❌ ALERTA: Ninguna imagen de temporada seca.');
+//     print('     El mosaico DRY está construido 100% con imágenes húmedas.');
+//   } else if (nHumedos > nSecos) {
+//     print('  ⚠️  AVISO: Más imágenes húmedas que secas en el DRY.');
+//   } else {
+//     print('  ✅ Mosaico DRY construido principalmente con imágenes secas.');
+//   }
+//   print('══════════════════════════════════════════════════');
+//   print('✅ Las mismas imágenes están cargadas en el mapa (apagadas).');
+//   print('Actívalas en el panel de capas del mapa superior izquierdo.');
+// });
