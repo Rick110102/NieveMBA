@@ -1,16 +1,16 @@
-var regionGlacier = 1009;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1005 - 1013
+var regionGlacier = 1006;     // ---> Única línea a variar en base a la región de clasificación, regiones de la 1005 - 1013
 var versionInput = 15;    // ----> Variable
 var versionInput35 = 15;
 
 var YearsSensors =  [
               [1985,  'lx',      75,    2114,      2497], 
-              // [1986,  'lx',      75,    2114,      2497], 
-              // [1987,  'lx',      75,    2114,      2497], 
-              // [1988,  'lx',      75,     2114,      2497], 
-              // [1989,  'lx',      75,     2114,      2497], 
-              // [1990,  'lx',      75,     2114,      2497], 
-              // [1991,  'lx',      75,     2114,      2497], 
-              // [1992,  'lx',      75,     2114,      2497], 
+              [1986,  'lx',      75,    2114,      2497], 
+              [1987,  'lx',      75,    2114,      2497], 
+              [1988,  'lx',      75,     2114,      2497], 
+              [1989,  'lx',      75,     2114,      2497], 
+              [1990,  'lx',      75,     2114,      2497], 
+              [1991,  'lx',      75,     2114,      2497], 
+              [1992,  'lx',      75,     2114,      2497], 
               // [1993,  'lx',      75,     2114,      2497], 
               // [1994,  'lx',      75,     2114,      2497], 
               // [1995,  'lx',      75,     2114,      2497], 
@@ -92,10 +92,10 @@ var vis_class = {
 
 // ── DATOS BASE ───────────────────────────────────────────────────
 var region = ee.FeatureCollection(AssetRegions)
-  .filter(ee.Filter.eq('id_regionC', regionGlacier))
-  .map(function(feat){
-    return feat.buffer(50000);
-  });
+  .filter(ee.Filter.eq('id_regionC', regionGlacier));
+  // .map(function(feat){
+  //   return feat.buffer(50000);
+  // });
 
 var regionRaster = region.reduceToImage({
   properties: ['id_regionC'],
