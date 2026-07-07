@@ -32,13 +32,18 @@
     // reflectance: Tipo de reflectancia
       // Determina si es Top of Atmosphere (TOA) o Surface Reflectance (SR)
       
+      
+
+      
 var setProperties = function (image) {
 
+    // ee.Algorithms.If(condición, valorSiVerdadero, valorSiFalso)
+    
     var cloudCover = ee.Algorithms.If(image.get('SPACECRAFT_NAME'),
         image.get('CLOUDY_PIXEL_PERCENTAGE'),
         image.get('CLOUD_COVER')
     );
-
+   // Condición escalonada ...
     var date = ee.Algorithms.If(image.get('DATE_ACQUIRED'),
         image.get('DATE_ACQUIRED'),
         ee.Algorithms.If(image.get('SENSING_TIME'),
