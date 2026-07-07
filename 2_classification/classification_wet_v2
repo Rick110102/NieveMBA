@@ -76,15 +76,7 @@ var YearsSensors =  [
               [2025,  'l9',      75,     1730,      2304],
             ]  
 
-/**
-* Cargamos nuevas regiones de procesamiento
-* Regiones de 1 a 48 a procesar
-* mapbiomas : regiones 1 - 10, reprocesar regiones mal exportadas o con errores, filtros postclass
-* chara.valverde1 : regiones 11 - 20.
-* chara.valverde2 : regiones 21 - 30
-* chara.valverde3 : regiones 31 - 40
-* plusacademyhz : regiones 41 - 48
-*/
+
 var AssetRegions = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
 var AssetClasBatch = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION3/GLACIER/classification';
 var palettes = require('users/mapbiomas/modules:Palettes.js');
