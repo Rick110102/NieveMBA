@@ -100,7 +100,7 @@ exports.getFractions = function (image, endmembers) {
 
     var summed = fractions.expression('b("gv") + b("npv") + b("soil")');
 
-    var shade = summed
+    var shade = summed // Estimación de la banda shade, que se calcula de la diferencia. 
         .subtract(100)
         .abs()
         .byte()
@@ -109,7 +109,7 @@ exports.getFractions = function (image, endmembers) {
     image = image.addBands(fractions);
     image = image.addBands(shade);
 
-    return image;
+    return image; // Agregamos las bandas calculadas de los endmembers a la imagen original. 
 };
 
 /**
@@ -117,6 +117,8 @@ exports.getFractions = function (image, endmembers) {
  * @param {*} image
  * @param {*} endmembers
  */
+ 
+// índices calculados a partir de los endmembers, con el mismo patrón de NormalizedDifference
 exports.getNDFI = function (imageFractions) {
 
     var summed = imageFractions.expression('b("gv") + b("npv") + b("soil")');
