@@ -129,6 +129,7 @@ YearsSensors.forEach(
   Mosaic = smafractions.getFractions(Mosaic);
   
   // Bandas de Mosaic-snow
+  // Variables a clasificar
   var variables = [
                   "blue_median_wet",
                   "green_median_wet",
@@ -152,7 +153,7 @@ YearsSensors.forEach(
   var MosaicForClass = Mosaic.select(variables);
   print(yearsensor[0], MosaicForClass.bandNames().size())
 
-  // Clasificación espectral + SMA
+  // Clasificación espectral + SMA (Solo umbrales)
   var classified_spectral = ee.Image(25)
                                 .where(Mosaic.select('nir_median').lte(tree.nir_dry),25)
                                 .where(Mosaic.select('red_median').lte(tree.red_dry),25)
