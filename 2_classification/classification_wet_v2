@@ -154,7 +154,7 @@ YearsSensors.forEach(
   print(yearsensor[0], MosaicForClass.bandNames().size())
 
   // Clasificación espectral + SMA (Solo umbrales)
-  var classified_spectral = ee.Image(25)
+  var classified_spectral = ee.Image(25) // Todo píxel arranca siendo date 25
                                 .where(Mosaic.select('nir_median').lte(tree.nir_dry),25)
                                 .where(Mosaic.select('red_median').lte(tree.red_dry),25)
                                 // .where(Mosaic.select('snow').lte(10),25)
@@ -169,7 +169,7 @@ YearsSensors.forEach(
                                 // .where(Mosaic.select('ndsi_median_wet').gte(188), 34)
                                 // .where(Mosaic.select('slope').gte(15), 34)
                                 // .where(Mosaic.select('soil').lte(25), 34)
-                                .where(Mosaic.select('ndsi_min').gte(100).add(Mosaic.select('snow').gte(40).and(Mosaic.select('slope').gte(0))), 34)
+                                .where(Mosaic.select('ndsi_min').gte(100).and(Mosaic.select('snow').gte(40).and(Mosaic.select('slope').gte(0))), 34)
                                 // .where(Mosaic.select('snow').gte(170).and(Mosaic.select('slope').gte(5)), 34)
                                 // .where(Mosaic.select('shade').lte(256), 34)
                                 // .where(Mosaic.select('ndsi_min').gte(87), 34)
