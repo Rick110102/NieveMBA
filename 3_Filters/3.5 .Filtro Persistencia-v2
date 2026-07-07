@@ -1,3 +1,7 @@
+// Evaluamos la consistencia temporal de cada píxel
+// Decidimos si su clasificación es considerada al final
+// Según que tan seguido aparece
+ 
  var listrc = [
               // [1, "PERU"],
               // [2, "PERU"],
@@ -119,7 +123,7 @@ for(var rc = 0; rc < listrc.length; rc++){
 
   // ============================================================
   // FILTRO DE PERSISTENCIA - UMBRAL 80%
-  // Si un píxel está mapeado como nieve (34) en ≥ 80% de los
+  // Si un píxel está mapeado como nieve (34) en ≥ 35% de los
   // años → se mantiene en los años que fue mapeado
   // Si está en < 80% de los años → se elimina de TODOS los años
   // ============================================================
