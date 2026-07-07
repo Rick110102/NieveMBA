@@ -129,9 +129,9 @@ exports.getCollection = function (obj) {
         ee.Filter.lte('cloud_cover', obj.cloudCover)
     );
 
-    var collection = ee.ImageCollection(obj.collectionid)
-        .map(setProperties)
-        .filter(filters);
+    var collection = ee.ImageCollection(obj.collectionid) // Carga la colección cruda LANDSAT/LC08/C02/T1_L2
+        .map(setProperties) // Aplica la normalización de metadatados a cada imagen de la colección
+        .filter(filters); // Filtra en base a lo trabajado en filters..., geometría de interés, fecha de interés y nubosidad
 
     return collection;
 };
