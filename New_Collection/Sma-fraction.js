@@ -14,7 +14,7 @@
         // Nubes
         // Nieve (en getFractions2() con más detalle)
 exports.getFractions = function (image) {
-  
+  // En el script de clasificación solo usamos getFractions de 5 endmembers. 
     var endmembers= [
         [119.0, 475.0, 169.0, 6250.0, 2399.0, 675.0], /*gv*/
         [1514.0, 1597.0, 1421.0, 3053.0, 7707.0, 1975.0], /*npv*/
