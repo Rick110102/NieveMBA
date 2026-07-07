@@ -129,6 +129,7 @@ for(var rc = 0; rc < listrc.length; rc++){
   // ============================================================
 
   // PASO 1 - Contar cuántos años el píxel fue clase 34
+  // Acumulador, 0/1, se tiene un contador de 0 a 26 por píxel
   var snowPresence = bandNames.iterate(
       function(bandName, acc){
           bandName = ee.String(bandName);
@@ -140,6 +141,8 @@ for(var rc = 0; rc < listrc.length; rc++){
   snowPresence = ee.Image(snowPresence).rename('snow_count');
 
   // PASO 2 - Total de años con datos válidos por píxel
+  // validamos la secuencia de un píxel
+  // Denomidor real del píxel
   var totalYears = bandNames.iterate(
       function(bandName, acc){
           bandName = ee.String(bandName);
@@ -162,7 +165,7 @@ for(var rc = 0; rc < listrc.length; rc++){
   //     maxPixels: 1e9
   // }));
 
-  // PASO 4 - Máscara de píxeles que superan el umbral (≥ 80%)
+  // PASO 4 - Máscara de píxeles que superan el umbral (≥ 35%)
   // Estos píxeles se mantienen en los años que fueron mapeados
   var persistentPixels = snowFrequency
       .gte(param.persistenceThreshold)
