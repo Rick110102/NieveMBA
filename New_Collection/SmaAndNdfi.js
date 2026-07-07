@@ -96,7 +96,7 @@ exports.getFractions = function (image, endmembers) {
         .multiply(100) // Escalamos de 0 - 1 a 0 - 100
         .byte(); // Comprimimos 0 - 255
 
-    fractions = fractions.rename(outBandNames);
+    fractions = fractions.rename(outBandNames); // Renombramos
 
     var summed = fractions.expression('b("gv") + b("npv") + b("soil")');
 
