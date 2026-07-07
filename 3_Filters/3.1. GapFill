@@ -73,6 +73,7 @@ var OutputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER
 var param = {
     version_input: 1,
     version_output: 2,
+    // Versiones de procesamiento, input y output, salida del asset
 };
 
 var palettes = require('users/mapbiomas/modules:Palettes.js');
@@ -81,6 +82,8 @@ var palettes = require('users/mapbiomas/modules:Palettes.js');
 var bandNames = ee.List(
     years.map(function(year){
         return 'classification_' + String(year);
+        // Genera una lista ['classification_2000', 'classification_2001', ..., 'classification_2025']
+        // Una banda por año, todas dentro de una sola imagen multiband
     })
 );
 
