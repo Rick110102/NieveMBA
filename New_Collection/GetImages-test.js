@@ -264,7 +264,7 @@ exports.getImages = function (param, blackList, grid) {
             'dateEnd':   options.dates.t1,
             'bandReference': 'ndsi',
             'percentileDry': 25,
-            'percentileWet': 90, // Antes 75
+            'percentileWet': 75, // Antes 75
         });
 
         mosaic = mis.getSlope(mosaic);
