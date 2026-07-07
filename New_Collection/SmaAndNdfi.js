@@ -91,10 +91,10 @@ exports.getFractions = function (image, endmembers) {
 
     var fractions = ee.Image(image)
         .select(['blue', 'green', 'red', 'nir', 'swir1', 'swir2'])
-        .unmix(endmembers)
-        .max(0)
-        .multiply(100)
-        .byte();
+        .unmix(endmembers) //Devuelve para cada píxel, la fracción estimada de cada endmember, 4 bandas nuevas por endmember
+        .max(0) // Forzamos a que no existan fracciones negativas
+        .multiply(100) // Escalamos de 0 - 1 a 0 - 100
+        .byte(); // Comprimimos 0 - 255
 
     fractions = fractions.rename(outBandNames);
 
