@@ -170,16 +170,16 @@ for (var rc = 0; rc < listrc.length; rc++) {
     maxPixels:        1e13
   });
 
-  // ── Exportar a Drive (opcional) ─────────────────────────────────────────────
-  if (param.exportOpcion.exportClasifToDrive) {
-    Export.image.toDrive({
-      image:       class4_masked.toUint8(),
-      description: prefixo_out + '-DRIVE-' + param.version_output,
-      folder:      param.exportOpcion.DriveFolder,
-      scale:       30,
-      maxPixels:   1e13,
-      region:      regionGeom,
-    });
-  }
+ 
+  // if (param.exportOpcion.exportClasifToDrive) {
+  //   Export.image.toDrive({
+  //     image:       class4_masked.toUint8(),
+  //     description: prefixo_out + '-DRIVE-' + param.version_output,
+  //     folder:      param.exportOpcion.DriveFolder,
+  //     scale:       30,
+  //     maxPixels:   1e13,
+  //     region:      regionGeom,
+  //   });
+  // }
 
 }
