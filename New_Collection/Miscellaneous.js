@@ -16,6 +16,7 @@ exports.getSlope = function (image) {
     var terrain = ee.Image("JAXA/ALOS/AW3D30_V1_1").select("AVE");
 
     var slope = ee.Terrain.slope(terrain)
+    // Reescalado; 15° = 1500
         .multiply(100)
         .int16()
         .rename('slope');
