@@ -88,6 +88,8 @@ var bandNames = ee.List(
 );
 
 // Función gap fill - misma lógica del código base
+// Se hacen dos pasadas, una hacia adelante y hacia atras, rellena cada dato faltante con el valor del año anterior resuelto
+// La segunda pasada, rellena lo que la primera pasada no pudo completar.
 var applyGapFill = function(image) {
 
     // Rellena hacia adelante t0 → tn
@@ -97,6 +99,8 @@ var applyGapFill = function(image) {
                 var currentImage = image.select(ee.String(bandName));
                 previousImage = ee.Image(previousImage);
                 currentImage = currentImage.unmask(previousImage.select([0]));
+                // Aquí ocurre el relleno, donde los píxeles sin dato, se rellenan con el valor de la imagen previa
+                // 2001 con 2000 - 2002 con el resuelto del 2001 - 2003 con el resuelto del 2002
                 return currentImage.addBands(previousImage);
             },
             ee.Image(image.select([bandNames.get(0)]))
@@ -106,18 +110,19 @@ var applyGapFill = function(image) {
 
     // Rellena hacia atrás tn → t0
     var bandNamesReversed = bandNames.reverse();
-
+    // Lógica similar a la anterior.
     var imageFilledtnt0 = bandNamesReversed.slice(1)
         .iterate(
             function(bandName, previousImage) {
                 var currentImage = imageFilledt0tn.select(ee.String(bandName));
+                // Trabajamos sobre el resultado del rellenado previo
                 previousImage = ee.Image(previousImage);
                 currentImage = currentImage.unmask(
                     previousImage.select(previousImage.bandNames().length().subtract(1)));
                 return previousImage.addBands(currentImage);
             },
             ee.Image(imageFilledt0tn.select([bandNamesReversed.get(0)]))
-        );
+        ); // Esta segunda pasada no sobreescribe los valores corregidos de la primera, solo actua sobre píxeles que siguen enmascarados
 
     imageFilledtnt0 = ee.Image(imageFilledtnt0).select(bandNames);
 
@@ -154,12 +159,12 @@ for(var rc = 0; rc < listrc.length; rc++){
         // max() fusiona múltiples sensores del mismo año
         var GlacierYear = Clasificacion_WET
             .filterMetadata('year', 'equals', year)
-            .max()
-            .unmask(25)
-            .updateMask(regionRaster);
+            .max() // Fusiona las imágenes en una sola, si hay más de un año clasificado
+            .unmask(25) // Cualquier píxel sin clasificar, es no glaciar
+            .updateMask(regionRaster); // Recorte al límite
 
         Clasificacion = Clasificacion.addBands(
-            GlacierYear.rename('classification_' + year)
+            GlacierYear.rename('classification_' + year) // 
         );
     });
 
@@ -176,17 +181,21 @@ for(var rc = 0; rc < listrc.length; rc++){
     var image = classif.select(bandnameReg);
 
     // Verificar bandas existentes vs esperadas
+    // Verificamos la presencia de las 26 bandas
     var bandsOccurrence = ee.Dictionary(
         bandNames.cat(image.bandNames()).reduce(ee.Reducer.frequencyHistogram())
+                                        // Contamos cuantas veces aparece cada nombre en la lista
+                                        // Si aparece dos veces es un año esperado
+                                        // Si solo aparece una vez, no presente
     );
 
     var bandsDictionary = bandsOccurrence.map(function(key, value){
         return ee.Image(
             ee.Algorithms.If(
                 ee.Number(value).eq(2),
-                image.select([key]).byte(),
+                image.select([key]).byte(), // Si no se tienen un conteo de 2, se crea una banda enmascarada vacía
                 ee.Image().rename([key]).byte().updateMask(image.select(0))
-            )
+            ) // Buscamos siempre tener las 26 bandas, serán trabajadas con el gapfill---
         );
     });
 
@@ -206,7 +215,7 @@ for(var rc = 0; rc < listrc.length; rc++){
     // PASO 4: Exportar
     var imageName = pais + '-' + regionId + '-' + param.version_output;
 
-    imageFilledtnt0 = imageFilledtnt0.select(bandNames)
+    imageFilledtnt0 = imageFilledtnt0.select(bandNames) // Ordeb de bandas 2000 - 2025
         .set('code_region', regionId)
         .set('pais', pais)
         .set('version', param.version_output)
