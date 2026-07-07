@@ -19,7 +19,7 @@
               // [18, "PERU"],
               // [19, "PERU"],
               // [20, "PERU"],
-              // [21, "PERU"],
+              [21, "PERU"],
               // [22, "PERU"],
               // [23, "PERU"],
               // [24, "PERU"],
@@ -39,11 +39,11 @@
               // [38, "PERU"],
               // [39, "PERU"],
               // [40, "PERU"],
-              [41, "PERU"],
-              [42, "PERU"],
-              [43, "PERU"],
-              [44, "PERU"],
-              [45, "PERU"],
+              // [41, "PERU"],
+              // [42, "PERU"],
+              // [43, "PERU"],
+              // [44, "PERU"],
+              // [45, "PERU"],
               // Regiones 46, 47 y 48 descartadas de las regiones de procesamiento final.
               // [46, "PERU"],
               // [47, "PERU"],
@@ -86,7 +86,9 @@ for(var rc = 0; rc < listrc.length; rc++){
       'max': 34,
       'palette': palettes.get('classification2')
   };
-
+  // Dos capas de persistencia, la de 35%, previa
+  // Capa al 90% nucleo presente en la mayor parte de las imágenes
+  
   // ── CARGAR CLASIFICACIÓN v9 (P35) ───────────────────────────
   var class9FT = ee.ImageCollection(dirinput)
                    .filterMetadata('code_region', 'equals', param.regionGlacier)
@@ -154,7 +156,10 @@ for(var rc = 0; rc < listrc.length; rc++){
   });
 
   print('Conteos P35 dentro de P90 por año:', countsP35inP90);
-
+  
+  // Si en un año, dentro de nuestra zona confiable P90, existen pocos píxeles
+  // Es una zona de el año evaluado que requiere corrección o esta vacío o hay error
+  
   // ── DETECTAR AÑOS VACÍOS EN EL CLIENTE ──────────────────────
   var countsInfo = countsP35inP90.getInfo();
   var countP90val = ee.Number(countP90).getInfo();
@@ -165,6 +170,7 @@ for(var rc = 0; rc < listrc.length; rc++){
       var bandName = 'classification_' + year;
       var countP35 = countsInfo[bandName] || 0;
       var isVoid = countP90val > countP35 * param.voidThreshold;
+      // Declaramos vacío si la cantidad de píxeles de P90 es mayor a la de P35
       print("Region " + param.regionGlacier + " | " + 'Año ' + year + ' | P90: ' + countP90val + ' | P35: ' + countP35 + ' | Vacío: ' + isVoid);
       return isVoid;
   });
@@ -193,7 +199,7 @@ for(var rc = 0; rc < listrc.length; rc++){
       var isVoid = voidYearsList[idx];
 
       if(isVoid){
-          print('⚠️ Año vacío detectado:', year);
+          print('Año vacío detectado:', year);
 
           var prevIdx = findValidYear(idx, -1, voidYearsList);
           var nextIdx = findValidYear(idx, +1, voidYearsList);
