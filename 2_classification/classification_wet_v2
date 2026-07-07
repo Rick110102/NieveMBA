@@ -238,3 +238,18 @@ Map.addLayer(
     region.style({ fillColor: '#ff000000', color: 'f59e42'}),
     {}, 'Regions ' + params.pais, false
 );
+
+
+
+
+
+
+/**
+* Cargamos nuevas regiones de procesamiento
+* Regiones de 1 a 48 a procesar
+* mapbiomas : regiones 1 - 10, reprocesar regiones mal exportadas o con errores, filtros postclass
+* chara.valverde1 : regiones 11 - 20.
+* chara.valverde2 : regiones 21 - 30
+* chara.valverde3 : regiones 31 - 40
+* plusacademyhz : regiones 41 - 48
+*/
