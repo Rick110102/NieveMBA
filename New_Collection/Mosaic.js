@@ -70,6 +70,8 @@ exports.getMosaic = function (obj) {
             return image.mask(image.select(['ndsi']).gte(ndviWet));
         }
     );
+// Bandas adicionales de diferentes estadísticas adicionales
+// Mediana general, extremos absolutos por vanda; todas son agregadas como bandas en el mosaico final. 
 
     // Reduce collection to median mosaic
     var mosaic = obj.collection.filter(
