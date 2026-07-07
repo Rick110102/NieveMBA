@@ -1,6 +1,8 @@
 // PROCESO DE MAX + GAP FILL - GLACIER WET
+
 // Por cada región se carga la clasificación, se aplica max por año,
-// se construye imagen multiband y se aplica gap fill
+// Cumple dos objetivos
+// se construye imagen multiband (1) y se aplica gap fill (2)
 
 var listrc = [
               // [1, "PERU"],
@@ -53,6 +55,7 @@ var listrc = [
               [48, "PERU"],
             ];
 
+// Diccionario de años
 var years = [
     2000, 2001, 2002, 2003, 2004,
     2005, 2006, 2007, 2008, 2009,
@@ -74,7 +77,7 @@ var param = {
 
 var palettes = require('users/mapbiomas/modules:Palettes.js');
 
-// Nombres de bandas para gap fill
+// Nombres de bandas 
 var bandNames = ee.List(
     years.map(function(year){
         return 'classification_' + String(year);
