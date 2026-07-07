@@ -66,6 +66,7 @@ var Bounds = 'projects/ee-mapbiomasaguaperu/assets/RegionesGlaciaresWet';
 var InputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2';
 var OutputAsset = 'projects/mapbiomas-peru/assets/LAND-COVER/COLLECTION4/GLACIER-WET/classification-ft-v2/';
 var lakes = 'projects/mapbiomas-peru/assets/WATER/COLLECTION-3/BODY-REMAP/SNIC_OBJ/obj_acumulado';
+  // Importamos la capa de agua de MapBiomasAgua para enmascarar las lagunas o cuerpos de agua mal clasificados
 // La version 1, fueron testeos
 
 var palettes = require('users/mapbiomas/modules:Palettes.js');
@@ -127,6 +128,7 @@ for (var rc = 0; rc < listrc.length; rc++) {
       var classBand = class4.select([bandName]);
 
       // Píxeles que son laguna (1) Y glaciar (34) → reclasificar a 25
+      // Condicional "and" -> v & v = v, debe ser laguna y nieve para enmascarar como no nieve
       var mascara = lagunaClipped.gt(0).and(classBand.eq(34));
 
       return classBand.where(mascara, 25).rename(bandName);
