@@ -1,3 +1,7 @@
+// Filtro por Píxeles conectados y filtro moda focal
+// Limpieza de ruido, tipo sal y pimienta
+// Eliminamos grupos de píxeles pequeños y aislados
+
 var listrc = [
               // [1, "PERU"],
               // [2, "PERU"],
@@ -121,12 +125,16 @@ for(var rc = 0; rc<listrc.length; rc++){
   );
   
   // add connected pixels bands
+
   var imageFilledConnected = class4FT.addBands(
       class4FT
           .connectedPixelCount(100, param.eightConnected)
+          // Píxeles vecinos con el mismo valor de clase.
+          // Máximo conteo de 100px, conexión con sus 8 vecinos al píxel
           .rename(bandNames.map(
               function (band) {
                   return ee.String(band).cat('_connected')
+                  // El resultado se agrega como bandas nuevas con el sufijo _connected
               }
           ))
   );
@@ -160,6 +168,8 @@ for(var rc = 0; rc<listrc.length; rc++){
   
   var ano = '2000'
   var moda_85 = class4FT.select('classification_'+ano).focal_mode(1, 'square', 'pixels')
+    // Focal mode con un radio 1 de píxel, una ventana de 3x3
+    // Limamos ruido puntual
   
   moda_85 = moda_85.mask(class4FT.select('classification_'+ano+ '_connected').lte(param.min_connect_pixel))
   
