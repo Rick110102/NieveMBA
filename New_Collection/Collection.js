@@ -132,7 +132,7 @@ exports.getCollection = function (obj) {
     var collection = ee.ImageCollection(obj.collectionid) // Carga la colección cruda LANDSAT/LC08/C02/T1_L2
         .map(setProperties) // Aplica la normalización de metadatados a cada imagen de la colección
         .filter(filters); // Filtra en base a lo trabajado en filters..., geometría de interés, fecha de interés y nubosidad
-
+// Filtramos luego de normalizar, de lo contrario la propiedad 'cloud_cover', daría errror
     return collection;
 };
 
