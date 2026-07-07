@@ -21,10 +21,12 @@ exports.getFractions = function (image) {
         [1799.0, 2479.0, 3158.0, 5437.0, 7707.0, 6646.0], /*soil*/
         [4031.0, 8714.0, 7900.0, 8989.0, 7002.0, 6607.0], /*cloud*/
         [9599.1, 9648.5, 9942.6, 9041.6, 519.8, 527.2] /*snow*/
+        // Valores altos en blue, green, red y nir y muy bajos en swir1 y 2
          ]
 
     var outBandNames = ['gv', 'npv', 'soil', 'cloud','snow'];
-
+    
+    // Aplicado directamente al mosaico y no a imágenes individuales----------
     var fractions = ee.Image(image)
         .select(['blue_median_wet', 'green_median_wet', 'red_median_wet', 'nir_median_wet', 'swir1_median_wet', 'swir2_median_wet'])
         .unmix(endmembers)
