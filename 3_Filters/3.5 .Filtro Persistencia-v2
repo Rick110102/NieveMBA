@@ -242,7 +242,6 @@ for(var rc = 0; rc < listrc.length; rc++){
   //
   //
   // ============================================================
-  // EXPORTAR persistentPixels como Shapefile a Drive
   // ============================================================
   
   // var persistentVectors = persistentPixels
@@ -278,7 +277,6 @@ for(var rc = 0; rc < listrc.length; rc++){
   
   
   // ============================================================
-  // EXPORTAR
   // ============================================================
 
   var imageExport = imagePersistence
@@ -302,7 +300,7 @@ for(var rc = 0; rc < listrc.length; rc++){
 }
 
 // ============================================================
-// EXPORTAR AssetRegions como Shapefile a Drive (una sola vez)
+// EXPORTAR AssetRegions como Shapefile a Drive 
 // ============================================================
 
 // var regionsFC = ee.FeatureCollection(AssetRegions);
