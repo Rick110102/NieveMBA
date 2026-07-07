@@ -1,3 +1,6 @@
+// Este es el final
+// Usado para el proceso final de clasificación
+
 // Parametros de procesamiento.
 // Solo cambiar regionGlacier para procesar nuevas regiones
 var params = {
